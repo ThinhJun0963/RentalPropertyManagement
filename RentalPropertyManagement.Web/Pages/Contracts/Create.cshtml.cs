@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using RentalPropertyManagement.BLL.DTOs;
 using RentalPropertyManagement.BLL.Interfaces;
-using RentalPropertyManagement.DAL.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,68 +14,53 @@ namespace RentalPropertyManagement.Web.Pages.Contracts
     public class CreateModel : PageModel
     {
         private readonly IContractService _contractService;
+        private readonly IUserService _userService;
+        private readonly IPropertyService _propertyService; // Dịch vụ giả định
 
-        // Bạn cần thêm IUserService và IPropertyService để lấy danh sách Tenant và Property
-        // Tạm thời, tôi giả định bạn sẽ có IRepository<User> và IRepository<Property> để làm mẫu
-        private readonly IUnitOfWork _unitOfWork;
-
-        public CreateModel(IContractService contractService, IUnitOfWork unitOfWork)
+        public CreateModel(IContractService contractService, IUserService userService, IPropertyService propertyService)
         {
             _contractService = contractService;
-            _unitOfWork = unitOfWork;
+            _userService = userService;
+            _propertyService = propertyService;
         }
 
         [BindProperty]
         public ContractDTO Contract { get; set; }
 
-        public IEnumerable<SelectListItem> Tenants { get; set; }
-        public IEnumerable<SelectListItem> Properties { get; set; }
+        public SelectList Tenants { get; set; }
+        public SelectList Properties { get; set; }
 
-        public void LoadSelectLists()
+        public async Task OnGetAsync()
         {
-            // Tải danh sách Người thuê (Role = Tenant)
-            var users = _unitOfWork.Users.Find(u => u.Role == DAL.Enums.UserRole.Tenant);
-            Tenants = users.Select(u => new SelectListItem
-            {
-                Value = u.Id.ToString(),
-                Text = $"{u.FirstName} {u.LastName} ({u.Email})"
-            }).ToList();
+            // Lấy danh sách Tenants
+            var tenants = await _userService.GetTenantsForSelectionAsync();
+            Tenants = new SelectList(tenants, "Id", "FullName");
 
-            // Tải danh sách Tài sản
-            var properties = _unitOfWork.Properties.GetAll();
-            Properties = properties.Select(p => new SelectListItem
-            {
-                Value = p.Id.ToString(),
-                Text = p.Address
-            }).ToList();
-        }
-
-        public IActionResult OnGet()
-        {
-            LoadSelectLists();
-            Contract = new ContractDTO
-            {
-                StartDate = System.DateTime.Now,
-                EndDate = System.DateTime.Now.AddYears(1)
-            };
-            return Page();
+            // Lấy danh sách Property có sẵn
+            var properties = await _propertyService.GetAvailablePropertiesForSelectionAsync();
+            Properties = new SelectList(properties, "Id", "Address");
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Kiểm tra tính hợp lệ
             if (!ModelState.IsValid)
             {
-                LoadSelectLists();
+                await OnGetAsync(); // Load lại dropdown nếu lỗi validation
                 return Page();
             }
 
-            // Gọi Service để tạo mới
-            var newContract = await _contractService.CreateContractAsync(Contract);
-
-            TempData["SuccessMessage"] = $"Hợp đồng ID {newContract.Id} đã được tạo thành công!";
-
-            return RedirectToPage("./Index");
+            try
+            {
+                await _contractService.CreateContractAsync(Contract);
+                TempData["SuccessMessage"] = "Tạo hợp đồng thành công! Hợp đồng đang ở trạng thái PENDING.";
+                return RedirectToPage("./Index");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Không thể tạo hợp đồng: " + ex.Message);
+                await OnGetAsync();
+                return Page();
+            }
         }
     }
 }

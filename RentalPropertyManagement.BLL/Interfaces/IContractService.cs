@@ -11,5 +11,7 @@ namespace RentalPropertyManagement.BLL.Interfaces
         Task<ContractDTO> CreateContractAsync(ContractDTO contractDto);
         Task UpdateContractAsync(ContractDTO contractDto);
         Task DeleteContractAsync(int id);
+        Task ActivateContractAsync(int contractId);
+        Task<IEnumerable<ContractDTO>> GetContractsByTenantIdAsync(int tenantId);
     }
 }

@@ -1,0 +1,128 @@
+﻿@page
+@using System.Security.Claims
+@model RentalPropertyManagement.Web.Pages.Tenant.DashboardModel
+@{
+    ViewData["Title"] = "Tenant Dashboard";
+}
+
+<h1 class="h2 mb-4">🏠 Dashboard của bạn</h1>
+<p class="lead text-muted">Chào mừng trở lại, @User.FindFirstValue(ClaimTypes.Name) - đây là tổng quan nhanh về các tài sản của bạn.</p>
+
+<div class="row">
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Hợp đồng Hoạt động
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            @Model.Summary.ActiveContracts / @Model.Summary.TotalContracts
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-contract fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Hóa đơn (Chờ TT)
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            @Model.Summary.PendingInvoices
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Yêu cầu Bảo trì Mở</div>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">@Model.Summary.OpenMaintenanceRequests</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-wrench fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-secondary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                            Thông báo
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            Hợp đồng hết hạn: N/A
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row mt-3">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Các hành động chính</h6>
+            </div>
+            <div class="card-body">
+                <a asp-page="/Tenant/MyContracts" class="btn btn-outline-primary btn-block mb-3">
+                    <i class="fas fa-list-alt me-2"></i> Xem & Quản lý Hợp đồng
+                </a>
+                <a asp-page="/Tenant/Invoices" class="btn btn-outline-warning btn-block mb-3 disabled">
+                    <i class="fas fa-file-invoice-dollar me-2"></i> Thanh toán Hóa đơn (@Model.Summary.PendingInvoices)
+                </a>
+                <a asp-page="/Tenant/Maintenance/Create" class="btn btn-outline-info btn-block mb-3 disabled">
+                    <i class="fas fa-tools me-2"></i> Gửi Yêu cầu Bảo trì Mới
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông báo Gần đây (SignalR)</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Các thông báo mới nhất từ SignalR sẽ xuất hiện ở đây hoặc dưới dạng popup.</p>
+                <ul id="notificationList" class="list-group">
+                    <li class="list-group-item list-group-item-action">Không có thông báo mới.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

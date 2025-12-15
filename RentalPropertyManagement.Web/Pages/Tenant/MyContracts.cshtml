@@ -1,0 +1,51 @@
+﻿@page
+@model RentalPropertyManagement.Web.Pages.Tenant.MyContractsModel
+@{
+    ViewData["Title"] = "Hợp đồng của tôi";
+}
+
+<h1 class="h2 mb-4">🏡 Hợp đồng Thuê của tôi</h1>
+<p class="lead">Danh sách các hợp đồng bạn đang hoặc đã tham gia.</p>
+
+<table class="table table-hover table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Tài sản</th>
+            <th>Tiền thuê</th>
+            <th>Bắt đầu</th>
+            <th>Kết thúc</th>
+            <th>Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Contracts == null || !Model.Contracts.Any())
+        {
+            <tr>
+                <td colspan="5" class="text-center text-muted">Bạn chưa có hợp đồng nào.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in Model.Contracts)
+            {
+                <tr>
+                    <td>@item.PropertyAddress</td>
+                    <td>@item.RentAmount.ToString("N0") VNĐ</td>
+                    <td>@item.StartDate.ToShortDateString()</td>
+                    <td>@(item.EndDate.HasValue? item.EndDate.Value.ToShortDateString() : "Vô thời hạn")</td>
+                    <td>
+                        @{
+                            string badgeClass = item.Status switch
+                            {
+                                RentalPropertyManagement.DAL.Enums.ContractStatus.Active => "bg-success",
+                                RentalPropertyManagement.DAL.Enums.ContractStatus.Pending => "bg-warning",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @badgeClass">@item.Status.ToString()</span>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

@@ -25,8 +25,7 @@ namespace RentalPropertyManagement.BLL.DTOs
         [Range(0.01, double.MaxValue, ErrorMessage = "Tiền thuê phải lớn hơn 0.")]
         public decimal RentAmount { get; set; }
 
-        public ContractStatus Status { get; set; } = ContractStatus.Active; // Mặc định là Active khi tạo
-
+        public ContractStatus Status { get; set; }
         // (OPTIONAL) Thêm các trường hiển thị hỗ trợ cho View
         public string TenantName { get; set; }
         public string PropertyAddress { get; set; }

@@ -1,8 +1,9 @@
-﻿using RentalPropertyManagement.BLL.DTOs;
+﻿using BCrypt.Net; // Cần package BCrypt.Net-Next
+using RentalPropertyManagement.BLL.DTOs;
 using RentalPropertyManagement.BLL.Interfaces;
 using RentalPropertyManagement.DAL.Entities;
+using RentalPropertyManagement.DAL.Enums;
 using RentalPropertyManagement.DAL.Interfaces;
-using BCrypt.Net; // Cần package BCrypt.Net-Next
 
 namespace RentalPropertyManagement.BLL.Services
 {
@@ -71,6 +72,21 @@ namespace RentalPropertyManagement.BLL.Services
                 Email = userEntity.Email,
                 Role = userEntity.Role.ToString()
             };
+        }
+        public async Task<IEnumerable<UserDto>> GetTenantsForSelectionAsync()
+        {
+            // 1. Dùng Repository để tìm tất cả Users có Role là Tenant
+            var tenantEntities = await Task.Run(() =>
+                _unitOfWork.Users.Find(u => u.Role == UserRole.Tenant).ToList());
+
+            // 2. Ánh xạ sang UserDto
+            return tenantEntities.Select(u => new UserDto
+            {
+                Id = u.Id,
+                FullName = $"{u.FirstName} {u.LastName}",
+                Email = u.Email,
+                Role = u.Role.ToString()
+            });
         }
     }
 }

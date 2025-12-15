@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RentalPropertyManagement.Web.Pages.Contracts
 {
-    // Chỉ cho phép Landlord (Chủ nhà/Quản lý) truy cập trang này
+    // Chỉ Landlord mới được xem danh sách đầy đủ
     [Authorize(Roles = "Landlord")]
     public class IndexModel : PageModel
     {
@@ -22,7 +22,7 @@ namespace RentalPropertyManagement.Web.Pages.Contracts
 
         public async Task OnGetAsync()
         {
-            // Lấy toàn bộ danh sách Hợp đồng từ BLL
+            // Lấy tất cả hợp đồng (bao gồm Pending, Active, Expired)
             Contracts = await _contractService.GetAllContractsAsync();
         }
     }

@@ -78,6 +78,32 @@ namespace RentalPropertyManagement.DAL.Repositories
         public void RemoveRange(IEnumerable<TEntity> entities)
         {
             _dbSet.RemoveRange(entities);
+
+        }
+        private IQueryable<TEntity> ApplyIncludes(IQueryable<TEntity> query, params Expression<Func<TEntity, object>>[] includes)
+        {
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+            return query;
+        }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes)
+        {
+            var query = _dbSet.AsNoTracking();
+            query = ApplyIncludes(query, includes);
+            return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includes)
+        {
+            var query = _dbSet.Where(predicate).AsNoTracking();
+            query = ApplyIncludes(query, includes);
+            return await query.ToListAsync();
         }
     }
 }

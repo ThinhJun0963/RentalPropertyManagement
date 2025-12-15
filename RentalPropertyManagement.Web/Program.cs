@@ -5,6 +5,8 @@ using RentalPropertyManagement.BLL.Services;
 using RentalPropertyManagement.DAL.Data;
 using RentalPropertyManagement.DAL.Interfaces;
 using RentalPropertyManagement.DAL.Repositories;
+using RentalPropertyManagement.Web.Hubs;
+using RentalPropertyManagement.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +35,7 @@ builder.Services.AddSignalR();
 // Repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
 
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
@@ -64,7 +67,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHub<RentalPropertyManagement.Web.Hubs.MainHub>("/mainHub"); // Đặt endpoint là /mainHub
+app.MapHub<MainHub>("/mainHub");
 
 app.MapRazorPages();
 

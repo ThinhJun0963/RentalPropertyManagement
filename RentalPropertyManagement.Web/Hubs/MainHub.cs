@@ -3,14 +3,15 @@ using System.Threading.Tasks;
 
 namespace RentalPropertyManagement.Web.Hubs
 {
-    // Kế thừa từ Hub để có quyền truy cập vào Clients
+    // Lớp Hub chính
     public class MainHub : Hub
     {
-        // Hàm này được Client gọi
-        public async Task SendNotification(string title, string body, string url = "")
+        // Phương thức nhận thông báo từ Client (nếu cần)
+        public async Task SendMessage(string user, string message)
         {
-            // Giả sử gửi đến tất cả Landlord và Tenant
-            await Clients.All.SendAsync("ReceiveNotification", title, body, url);
+            await Clients.All.SendAsync("ReceiveMessage", user, message);
         }
+
+        // Phương thức ReceiveNotification được gọi từ Server (SignalRNotificationService)
     }
 }

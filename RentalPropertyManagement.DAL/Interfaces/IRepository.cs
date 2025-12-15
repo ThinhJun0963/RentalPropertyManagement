@@ -9,6 +9,8 @@ namespace RentalPropertyManagement.DAL.Interfaces
     {
         // --- PHƯƠNG THỨC BẤT ĐỒNG BỘ (ASYNC) ---
         Task<TEntity> GetAsync(int id);
+        Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes);
+        Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includes);
 
         // Phương thức quan trọng cho Login/Register (Tìm User theo Email)
         Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate);

@@ -8,5 +8,6 @@ namespace RentalPropertyManagement.BLL.Interfaces
         Task<UserDto> LoginAsync(LoginDto request);
 
         Task<bool> RegisterAsync(RegisterDto request);
+        Task<IEnumerable<UserDto>> GetTenantsForSelectionAsync();
     }
 }

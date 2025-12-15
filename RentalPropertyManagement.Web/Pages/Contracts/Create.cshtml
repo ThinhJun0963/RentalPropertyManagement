@@ -4,62 +4,56 @@
     ViewData["Title"] = "Tạo Hợp đồng Mới";
 }
 
-<h1 class="h2 mb-4">Tạo Hợp đồng Mới</h1>
+<h1 class="h2 mb-4">✍️ Tạo Hợp đồng Thuê</h1>
+<p class="text-muted">Hợp đồng sẽ được tạo ở trạng thái **PENDING** và cần được kích hoạt sau.</p>
 
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-6">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Contract.TenantId" class="form-label">Người thuê (Tenant)</label>
-                    <select asp-for="Contract.TenantId" class="form-control" asp-items="Model.Tenants">
-                        <option value="">-- Chọn Người thuê --</option>
-                    </select>
-                    <span asp-validation-for="Contract.TenantId" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Contract.PropertyId" class="form-label">Tài sản (Property)</label>
-                    <select asp-for="Contract.PropertyId" class="form-control" asp-items="Model.Properties">
-                        <option value="">-- Chọn Tài sản --</option>
-                    </select>
-                    <span asp-validation-for="Contract.PropertyId" class="text-danger"></span>
-                </div>
+            <div class="mb-3">
+                <label asp-for="Contract.TenantId" class="form-label">Người thuê</label>
+                <select asp-for="Contract.TenantId" class="form-control" asp-items="Model.Tenants">
+                    <option value="">-- Chọn Người thuê --</option>
+                </select>
+                <span asp-validation-for="Contract.TenantId" class="text-danger"></span>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Contract.StartDate" class="form-label">Ngày Bắt đầu</label>
-                    <input asp-for="Contract.StartDate" type="date" class="form-control" />
-                    <span asp-validation-for="Contract.StartDate" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Contract.EndDate" class="form-label">Ngày Kết thúc</label>
-                    <input asp-for="Contract.EndDate" type="date" class="form-control" />
-                    <span asp-validation-for="Contract.EndDate" class="text-danger"></span>
-                </div>
+            <div class="mb-3">
+                <label asp-for="Contract.PropertyId" class="form-label">Tài sản (Chỉ hiện các tài sản chưa thuê)</label>
+                <select asp-for="Contract.PropertyId" class="form-control" asp-items="Model.Properties">
+                    <option value="">-- Chọn Tài sản --</option>
+                </select>
+                <span asp-validation-for="Contract.PropertyId" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Contract.RentAmount" class="form-label">Tiền thuê hàng tháng (VNĐ)</label>
+            <div class="mb-3">
+                <label asp-for="Contract.RentAmount" class="form-label">Tiền thuê (VNĐ/tháng)</label>
                 <input asp-for="Contract.RentAmount" class="form-control" />
                 <span asp-validation-for="Contract.RentAmount" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-4">
-                <label asp-for="Contract.Status" class="form-label">Trạng thái</label>
-                <select asp-for="Contract.Status" class="form-control" asp-items="Html.GetEnumSelectList<RentalPropertyManagement.DAL.Enums.ContractStatus>()"></select>
+            <div class="mb-3">
+                <label asp-for="Contract.StartDate" class="form-label">Ngày bắt đầu</label>
+                <input asp-for="Contract.StartDate" class="form-control" type="date" />
+                <span asp-validation-for="Contract.StartDate" class="text-danger"></span>
             </div>
 
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary btn-lg">Tạo Hợp đồng</button>
-                <a asp-page="./Index" class="btn btn-secondary">Quay lại Danh sách</a>
+            <div class="mb-3">
+                <label asp-for="Contract.EndDate" class="form-label">Ngày kết thúc (Không bắt buộc)</label>
+                <input asp-for="Contract.EndDate" class="form-control" type="date" />
+                <span asp-validation-for="Contract.EndDate" class="text-danger"></span>
             </div>
+
+            <button type="submit" class="btn btn-success btn-lg mt-3">Tạo Hợp đồng</button>
+            <a asp-page="./Index" class="btn btn-secondary mt-3">Hủy</a>
         </form>
     </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

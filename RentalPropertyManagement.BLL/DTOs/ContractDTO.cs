@@ -19,7 +19,7 @@ namespace RentalPropertyManagement.BLL.DTOs
         public DateTime StartDate { get; set; }
 
         [DataType(DataType.Date)]
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         [Required(ErrorMessage = "Số tiền thuê là bắt buộc.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Tiền thuê phải lớn hơn 0.")]

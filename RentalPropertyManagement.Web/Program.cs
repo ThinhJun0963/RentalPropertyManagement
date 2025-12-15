@@ -27,6 +27,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     });
 builder.Services.AddAuthorization();
+builder.Services.AddSignalR();
 
 // 3. Đăng ký Dependency Injection (DI)
 // Repositories
@@ -35,7 +36,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
-// >>> Thêm ContractService sau khi tạo xong <<<
+builder.Services.AddScoped<IContractService, ContractService>();
 
 builder.Services.AddRazorPages(options =>
 {
@@ -62,6 +63,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<RentalPropertyManagement.Web.Hubs.MainHub>("/mainHub"); // Đặt endpoint là /mainHub
 
 app.MapRazorPages();
 

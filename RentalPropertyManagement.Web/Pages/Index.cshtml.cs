@@ -1,44 +1,71 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization; // Cần dùng để bảo vệ trang
+using Microsoft.AspNetCore.Authorization;
+using RentalPropertyManagement.BLL.Interfaces;
+using RentalPropertyManagement.DAL.Enums;
+using System.Threading.Tasks;
+using System.Linq;
+using System;
 
 namespace RentalPropertyManagement.Web.Pages
 {
-    // Yêu cầu xác thực để truy cập trang Index (Dashboard)
     [Authorize]
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
+        private readonly IContractService _contractService;
 
+        // Thuộc tính string để lưu role đã lấy
         public string UserRole { get; set; }
         public string UserFullName { get; set; }
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public int TotalContracts { get; set; }
+        public int ActiveContracts { get; set; }
+        public int ExpiringSoonContracts { get; set; }
+        public decimal TotalMonthlyRent { get; set; }
+
+        public IndexModel(ILogger<IndexModel> logger, IContractService contractService)
         {
             _logger = logger;
+            _contractService = contractService;
         }
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
-            // Kiểm tra xem người dùng đã đăng nhập chưa
             if (!User.Identity.IsAuthenticated)
             {
-                // Nếu chưa, chuyển hướng đến trang Login
                 return RedirectToPage("/Login");
             }
 
-            // Lấy thông tin Role từ Claims (đã lưu khi Login)
             UserRole = User.FindFirstValue(ClaimTypes.Role);
             UserFullName = User.FindFirstValue(ClaimTypes.Name);
 
-            // Nếu Role không xác định, chuyển hướng đến trang từ chối truy cập
             if (string.IsNullOrEmpty(UserRole))
             {
                 return RedirectToPage("/AccessDenied");
             }
 
-            // Tiếp tục hiển thị trang với các thông tin đã lấy
+            // Dùng UserRole (enum type) được định nghĩa trong DAL.Enums để so sánh.
+            // Sửa lỗi: Thay vì dùng tên UserRole (string) bị trùng, chúng ta chỉ cần dùng giá trị enum
+            if (UserRole == RentalPropertyManagement.DAL.Enums.UserRole.Landlord.ToString())
+            {
+                var allContracts = await _contractService.GetAllContractsAsync();
+
+                TotalContracts = allContracts.Count();
+                ActiveContracts = allContracts.Count(c => c.Status == ContractStatus.Active);
+                TotalMonthlyRent = allContracts.Where(c => c.Status == ContractStatus.Active).Sum(c => c.RentAmount);
+
+                var today = DateTime.Today;
+                var ninetyDaysFromNow = today.AddDays(90);
+
+                ExpiringSoonContracts = allContracts.Count(c =>
+                    c.Status == ContractStatus.Active &&
+                    c.EndDate.HasValue &&
+                    c.EndDate.Value.Date >= today &&
+                    c.EndDate.Value.Date <= ninetyDaysFromNow);
+            }
+
             return Page();
         }
     }

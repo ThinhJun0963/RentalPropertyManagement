@@ -1,0 +1,66 @@
+﻿@page
+@model RentalPropertyManagement.Web.Pages.Contracts.IndexModel
+@{
+    ViewData["Title"] = "Quản lý Hợp đồng";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">Danh sách Hợp đồng Cho thuê</h1>
+    <a asp-page="./Create" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Tạo Hợp đồng mới
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Người thuê</th>
+                <th>Địa chỉ Tài sản</th>
+                <th>Giá thuê</th>
+                <th>Bắt đầu</th>
+                <th>Kết thúc</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Contracts != null && Model.Contracts.Any())
+            {
+                @foreach (var contract in Model.Contracts)
+                {
+                    <tr>
+                        <td>@contract.Id</td>
+                        <td>@contract.TenantName</td>
+                        <td>@contract.PropertyAddress</td>
+                        <td>@contract.RentAmount.ToString("N0") VNĐ</td>
+                        <td>@contract.StartDate.ToShortDateString()</td>
+                        <td>@(contract.EndDate.HasValue? contract.EndDate.Value.ToShortDateString() : "Vô thời hạn")</td>
+                        <td>
+                            <span class="badge @(contract.Status.ToString() == "Active" ? "bg-success" : (contract.Status.ToString() == "Expired" ? "bg-danger" : "bg-warning"))">
+                                @contract.Status.ToString()
+                            </span>
+                        </td>
+                        <td>
+                            <a asp-page="./Edit" asp-route-id="@contract.Id" class="btn btn-sm btn-info me-2">Sửa</a>
+                            <a asp-page="./Details" asp-route-id="@contract.Id" class="btn btn-sm btn-secondary">Xem</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8" class="text-center">Chưa có hợp đồng nào được tạo.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        // Yêu cầu thư viện Font Awesome trong _Layout.cshtml để hiển thị icon
+    </script>
+}

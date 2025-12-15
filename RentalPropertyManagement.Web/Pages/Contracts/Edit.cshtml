@@ -1,0 +1,91 @@
+﻿@page "{id:int}"
+@model RentalPropertyManagement.Web.Pages.Contracts.EditModel
+@{
+    ViewData["Title"] = "Chỉnh sửa Hợp đồng";
+}
+
+<h1 class="h2 mb-4">Chỉnh sửa Hợp đồng ID: @Model.Contract.Id</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <input type="hidden" asp-for="Contract.Id" />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Contract.TenantId" class="form-label">Người thuê (Tenant)</label>
+                    <select asp-for="Contract.TenantId" class="form-control" asp-items="Model.Tenants">
+                        <option value="">-- Chọn Người thuê --</option>
+                    </select>
+                    <span asp-validation-for="Contract.TenantId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Contract.PropertyId" class="form-label">Tài sản (Property)</label>
+                    <select asp-for="Contract.PropertyId" class="form-control" asp-items="Model.Properties">
+                        <option value="">-- Chọn Tài sản --</option>
+                    </select>
+                    <span asp-validation-for="Contract.PropertyId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Contract.StartDate" class="form-label">Ngày Bắt đầu</label>
+                    <input asp-for="Contract.StartDate" type="date" class="form-control" />
+                    <span asp-validation-for="Contract.StartDate" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Contract.EndDate" class="form-label">Ngày Kết thúc</label>
+                    <input asp-for="Contract.EndDate" type="date" class="form-control" />
+                    <span asp-validation-for="Contract.EndDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Contract.RentAmount" class="form-label">Tiền thuê hàng tháng (VNĐ)</label>
+                <input asp-for="Contract.RentAmount" class="form-control" />
+                <span asp-validation-for="Contract.RentAmount" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Contract.Status" class="form-label">Trạng thái</label>
+                <select asp-for="Contract.Status" class="form-control" asp-items="Html.GetEnumSelectList<RentalPropertyManagement.DAL.Enums.ContractStatus>()"></select>
+            </div>
+
+            <div class="d-flex justify-content-between pt-3 border-top">
+                <div>
+                    <button type="submit" class="btn btn-success btn-lg me-2">Lưu Thay đổi</button>
+                    <a asp-page="./Index" class="btn btn-secondary btn-lg">Quay lại</a>
+                </div>
+
+                <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#deleteModal">Xóa Hợp đồng</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận Xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa Hợp đồng ID: <strong>@Model.Contract.Id</strong> không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Contract.Id">
+                    <button type="submit" class="btn btn-danger">Xóa Vĩnh viễn</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

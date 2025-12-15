@@ -36,7 +36,12 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
+<<<<<<< Updated upstream
 builder.Services.AddScoped<IContractService, ContractService>();
+=======
+builder.Services.AddScoped<IChatService, ChatService>();
+// >>> Thêm ContractService sau khi tạo xong <<<
+>>>>>>> Stashed changes
 
 builder.Services.AddRazorPages(options =>
 {
@@ -47,7 +52,20 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToPage("/Index");
 });
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
+
+// Initialize Database (Create Messages table if not exists)
+try
+{
+    DbInitializer.Initialize(app.Configuration);
+}
+catch (Exception ex)
+{
+    // Log error or ignore if DB is not ready yet
+    Console.WriteLine($"Error initializing database: {ex.Message}");
+}
 
 // Configure Pipeline
 if (!app.Environment.IsDevelopment())
@@ -67,5 +85,6 @@ app.UseAuthorization();
 app.MapHub<RentalPropertyManagement.Web.Hubs.MainHub>("/mainHub"); // Đặt endpoint là /mainHub
 
 app.MapRazorPages();
+app.MapHub<RentalPropertyManagement.Web.Hubs.ChatHub>("/chatHub");
 
 app.Run();

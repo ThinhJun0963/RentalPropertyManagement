@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using RentalPropertyManagement.BLL.Interfaces;
+using RentalPropertyManagement.BLL.Services;
 using RentalPropertyManagement.DAL.Data;
 using RentalPropertyManagement.DAL.Interfaces;
 using RentalPropertyManagement.DAL.Repositories;
@@ -25,6 +27,8 @@ namespace RentalPropertyManagement.Web
 
             // Đăng ký UnitOfWork (Scoped - mỗi request một instance)
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            // Đăng ký các Service của BLL (mẫu cho Contract)
+            builder.Services.AddScoped<IContractService, ContractService>();
 
             var app = builder.Build();
 

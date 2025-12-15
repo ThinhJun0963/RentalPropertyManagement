@@ -7,7 +7,7 @@ namespace RentalPropertyManagement.DAL.Interfaces
         // Sau này sẽ thêm các repository cụ thể ở đây, ví dụ:
         // IContractRepository Contracts { get; }
         // ITenantRepository Tenants { get; }
-
+        IContractRepository Contracts { get; }
         void Save();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RentalPropertyManagement.DAL.Models;
 
 namespace RentalPropertyManagement.DAL.Data
 {
@@ -9,6 +10,7 @@ namespace RentalPropertyManagement.DAL.Data
         {
         }
         // Thêm các DbSet ở đây
+        public DbSet<Contract> Contracts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

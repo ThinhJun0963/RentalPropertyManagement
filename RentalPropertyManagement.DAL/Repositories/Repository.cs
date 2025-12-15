@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks; // Cần thêm using này
 
 namespace RentalPropertyManagement.DAL.Repositories
 {
@@ -18,6 +19,31 @@ namespace RentalPropertyManagement.DAL.Repositories
             _context = context;
             _dbSet = context.Set<TEntity>();
         }
+
+        // --- ASYNC IMPLEMENTATION ---
+
+        public async Task<TEntity> GetAsync(int id)
+        {
+            return await _dbSet.FindAsync(id);
+        }
+
+        public async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            // Sử dụng FirstOrDefaultAsync để tìm một đối tượng theo điều kiện
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        {
+            return await _dbSet.AsNoTracking().ToListAsync();
+        }
+
+        public async Task AddAsync(TEntity entity)
+        {
+            await _dbSet.AddAsync(entity);
+        }
+
+        // --- SYNC IMPLEMENTATION (Giữ nguyên) ---
 
         public TEntity Get(int id)
         {

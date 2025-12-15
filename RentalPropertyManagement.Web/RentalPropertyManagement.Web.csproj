@@ -17,4 +17,8 @@
     <ProjectReference Include="..\RentalPropertyManagement.BLL\RentalPropertyManagement.BLL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\Contracts\" />
+  </ItemGroup>
+
 </Project>

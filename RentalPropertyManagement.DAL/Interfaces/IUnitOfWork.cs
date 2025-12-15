@@ -17,10 +17,5 @@ namespace RentalPropertyManagement.DAL.Interfaces
 
         // Giữ lại Complete() sync (thay thế Save() cũ)
         int Complete();
-        // Sau này sẽ thêm các repository cụ thể ở đây, ví dụ:
-        // IContractRepository Contracts { get; }
-        // ITenantRepository Tenants { get; }
-        IContractRepository Contracts { get; }
-        void Save();
     }
 }

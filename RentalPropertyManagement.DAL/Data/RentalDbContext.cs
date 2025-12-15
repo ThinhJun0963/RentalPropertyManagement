@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RentalPropertyManagement.DAL.Models;
 using RentalPropertyManagement.DAL.Entities; // Sử dụng Entities từ DAL
 
 namespace RentalPropertyManagement.DAL.Data
@@ -10,8 +9,6 @@ namespace RentalPropertyManagement.DAL.Data
             : base(options)
         {
         }
-        // Thêm các DbSet ở đây
-        public DbSet<Contract> Contracts { get; set; }
 
         // --- Thêm DbSet cho các Entity Models ---
         public DbSet<User> Users { get; set; }

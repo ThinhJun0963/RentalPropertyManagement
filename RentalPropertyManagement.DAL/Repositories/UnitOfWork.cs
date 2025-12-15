@@ -14,8 +14,6 @@ namespace RentalPropertyManagement.DAL.Repositories
         public IRepository<Property> Properties { get; private set; }
         public IRepository<Contract> Contracts { get; private set; }
         public IRepository<MaintenanceRequest> MaintenanceRequests { get; private set; }
-        // Sau này sẽ thêm các repository private fields ở đây
-        private IContractRepository _contracts;
 
         public UnitOfWork(RentalDbContext context)
         {
@@ -32,13 +30,7 @@ namespace RentalPropertyManagement.DAL.Repositories
         {
             return await _context.SaveChangesAsync();
         }
-        public IContractRepository Contracts
-        {
-            get
-            {
-                return _contracts ??= new ContractRepository(_context);
-            }
-        }
+      
 
         public int Complete()
         {

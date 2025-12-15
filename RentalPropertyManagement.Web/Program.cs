@@ -1,55 +1,54 @@
-﻿using Microsoft.EntityFrameworkCore;
-using RentalPropertyManagement.BLL.Interfaces;
-using RentalPropertyManagement.BLL.Services;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 using RentalPropertyManagement.BLL.Interfaces;
 using RentalPropertyManagement.BLL.Services;
 using RentalPropertyManagement.DAL.Data;
 using RentalPropertyManagement.DAL.Interfaces;
 using RentalPropertyManagement.DAL.Repositories;
-using Microsoft.AspNetCore.Authentication.Cookies; // Cần thêm using này
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. CẤU HÌNH AUTHENTICATION (BẮT BUỘC) ---
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Login"; // Trang Login sẽ là trang mặc định khi chưa đăng nhập
-        options.LogoutPath = "/Logout";
-        options.AccessDeniedPath = "/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-    });
-builder.Services.AddAuthorization();
-// ----------------------------------------------
-
-
-// Cấu hình DbContext (Giữ nguyên)
+// 1. Cấu hình DB
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<RentalDbContext>(options =>
 {
     options.UseSqlServer(connectionString);
 });
 
+// 2. Cấu hình Authentication & Authorization
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.LogoutPath = "/Logout";
+        options.AccessDeniedPath = "/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    });
+builder.Services.AddAuthorization();
 
-// Đăng ký Repositories & Services (Giữ nguyên)
+// 3. Đăng ký Dependency Injection (DI)
+// Repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Services
 builder.Services.AddScoped<IUserService, UserService>();
+// >>> Thêm ContractService sau khi tạo xong <<<
 
-
-// Add services to the container.
-builder.Services.AddRazorPages();
-            // Đăng ký UnitOfWork (Scoped - mỗi request một instance)
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            // Đăng ký các Service của BLL (mẫu cho Contract)
-            builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddRazorPages(options =>
+{
+    // Yêu cầu xác thực cho tất cả các Page trừ Login, Register, và Index (nếu Index chỉ là trang chào mừng)
+    options.Conventions.AuthorizeFolder("/");
+    options.Conventions.AllowAnonymousToPage("/Login");
+    options.Conventions.AllowAnonymousToPage("/Register");
+    options.Conventions.AllowAnonymousToPage("/Index");
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure Pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -61,11 +60,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// --- 2. SỬ DỤNG MIDDLEWARE (BẮT BUỘC) ---
-// Phải đặt UseAuthentication và UseAuthorization sau UseRouting
 app.UseAuthentication();
 app.UseAuthorization();
-// ------------------------------------------
 
 app.MapRazorPages();
 

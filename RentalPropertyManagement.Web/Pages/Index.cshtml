@@ -1,151 +1,179 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Dashboard Chính";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="container mt-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4">Chào mừng, @Model.UserFullName!</h1>
-        <p class="lead">Bạn đang đăng nhập với vai trò: <strong>@Model.UserRole</strong></p>
-    </div>
-
-    @* Bảng Thống kê (Chỉ hiển thị cho Landlord) *@
-    @if (Model.UserRole == "Landlord")
-    {
-        <h2 class="mb-3 border-bottom pb-2">Thống kê Tổng quan (Contracts)</h2>
-        <div class="row mb-5">
-
-            <div class="col-md-3 mb-4">
-                <div class="card text-white bg-primary shadow">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-8">
-                                <h4 class="card-title mb-0">@Model.TotalContracts</h4>
-                                <p class="card-text">Tổng Hợp đồng</p>
-                            </div>
-                            <div class="col-4 text-end">
-                                <i class="fas fa-file-contract fa-3x"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <a asp-page="/Contracts/Index" class="card-footer text-white text-decoration-none">
-                        Chi tiết <i class="fas fa-arrow-circle-right"></i>
-                    </a>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-4">
-                <div class="card text-white bg-success shadow">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-8">
-                                <h4 class="card-title mb-0">@Model.ActiveContracts</h4>
-                                <p class="card-text">Hợp đồng đang Hoạt động</p>
-                            </div>
-                            <div class="col-4 text-end">
-                                <i class="fas fa-check-circle fa-3x"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-4">
-                <div class="card text-white bg-warning shadow">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-8">
-                                <h4 class="card-title mb-0">@Model.ExpiringSoonContracts</h4>
-                                <p class="card-text">Sắp hết hạn (90 ngày)</p>
-                            </div>
-                            <div class="col-4 text-end">
-                                <i class="fas fa-calendar-times fa-3x"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-4">
-                <div class="card text-white bg-info shadow">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-8">
-                                <h4 class="card-title mb-0">@Model.TotalMonthlyRent.ToString("N0") VNĐ</h4>
-                                <p class="card-text">Tổng Thu hàng tháng</p>
-                            </div>
-                            <div class="col-4 text-end">
-                                <i class="fas fa-wallet fa-3x"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <h2 class="mb-4 border-bottom pb-2">Chức năng Chính</h2>
+<style>
+    /* CSS Riêng cho trang chủ */
+    .hero-section {
+        background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%);
+        color: white;
+        padding: 80px 0;
+        border-radius: 0 0 50px 50px;
+        margin-bottom: 50px;
+        box-shadow: 0 10px 30px rgba(0, 153, 255, 0.2);
     }
 
-    @* Hiển thị các chức năng chính dựa trên vai trò (Giữ nguyên phần này và cập nhật link Contracts) *@
-    <div class="row justify-content-center">
+    .feature-card {
+        border: none;
+        border-radius: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+        height: 100%;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
 
-        @if (Model.UserRole == "Landlord")
-        {
-            <div class="col-md-4 mb-3">
-                <a asp-page="/Contracts/Index" class="btn btn-primary btn-lg w-100 py-3">
-                    <i class="fas fa-file-contract"></i> Quản lý Hợp đồng
-                </a>
-            </div>
-            <div class="col-md-4 mb-3">
-                <a asp-page="/Maintenance/Inbox" class="btn btn-warning btn-lg w-100 py-3">
-                    <i class="fas fa-tools"></i> Phê duyệt Bảo trì
-                </a>
-            </div>
-            <div class="col-md-4 mb-3">
-                <a asp-page="/Payments/Track" class="btn btn-success btn-lg w-100 py-3">
-                    <i class="fas fa-money-check-alt"></i> Theo dõi Thanh toán
-                </a>
-            </div>
-        }
-        else if (Model.UserRole == "Tenant")
-        {
-            <div class="col-md-4 mb-3">
-                <a asp-page="/Tenant/SubmitRequest" class="btn btn-danger btn-lg w-100 py-3">
-                    <i class="fas fa-exclamation-triangle"></i> Gửi Yêu cầu Bảo trì
-                </a>
-            </div>
-            <div class="col-md-4 mb-3">
-                <a asp-page="/Tenant/MyContracts" class="btn btn-info btn-lg w-100 py-3">
-                    <i class="fas fa-file-alt"></i> Xem Hợp đồng
-                </a>
-            </div>
-            <div class="col-md-4 mb-3">
-                <a asp-page="/Tenant/MakePayment" class="btn btn-success btn-lg w-100 py-3">
-                    <i class="fas fa-wallet"></i> Thanh toán Tiền thuê
-                </a>
-            </div>
-        }
-        else if (Model.UserRole == "ServiceProvider")
-        {
-            <div class="col-md-6 mb-3">
-                <a asp-page="/Provider/MyTasks" class="btn btn-secondary btn-lg w-100 py-3">
-                    <i class="fas fa-tasks"></i> Công việc được giao
-                </a>
-            </div>
-            <div class="col-md-6 mb-3">
-                <a asp-page="/Provider/UpdateStatus" class="btn btn-primary btn-lg w-100 py-3">
-                    <i class="fas fa-check-circle"></i> Cập nhật Trạng thái
-                </a>
-            </div>
-        }
-        else
-        {
-            <div class="col-12 alert alert-info text-center">
-                <p>Vai trò của bạn chưa được cấu hình. Vui lòng liên hệ quản trị viên.</p>
-            </div>
-        }
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+
+    .icon-box {
+        width: 80px;
+        height: 80px;
+        background: #e7f1ff;
+        color: #0d6efd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+
+    .feature-card:hover .icon-box {
+        background: #0d6efd;
+        color: white;
+    }
+
+    .cta-section {
+        background-color: #f8f9fa;
+        border-radius: 20px;
+        padding: 60px;
+        margin-top: 50px;
+    }
+</style>
+
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">Quản lý Bất động sản Thông minh</h1>
+        <p class="lead mb-4 opacity-75">
+            Giải pháp toàn diện kết nối Chủ nhà và Khách thuê. <br />
+            Quản lý hợp đồng, bảo trì và thanh toán chỉ trong một nền tảng.
+        </p>
         
+        <div class="d-flex justify-content-center gap-3">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <a asp-page="/Tenant/Dashboard" class="btn btn-light btn-lg px-4 fw-bold text-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i> Vào Dashboard
+                </a>
+            }
+            else
+            {
+                <a asp-page="/Register" class="btn btn-light btn-lg px-4 fw-bold text-primary">
+                    <i class="fas fa-user-plus me-2"></i> Đăng ký ngay
+                </a>
+                <a asp-page="/Login" class="btn btn-outline-light btn-lg px-4">
+                    <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="text-center mb-5">
+        <h6 class="text-primary fw-bold text-uppercase">Tính năng nổi bật</h6>
+        <h2 class="fw-bold">Tại sao chọn chúng tôi?</h2>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card feature-card p-4 text-center">
+                <div class="d-flex justify-content-center">
+                    <div class="icon-box">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                </div>
+                <h5 class="card-title fw-bold">Hợp đồng Điện tử</h5>
+                <p class="card-text text-muted small">
+                    Quản lý và ký kết hợp đồng thuê nhà trực tuyến. Lưu trữ an toàn, tra cứu dễ dàng mọi lúc mọi nơi.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card feature-card p-4 text-center">
+                <div class="d-flex justify-content-center">
+                    <div class="icon-box">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                </div>
+                <h5 class="card-title fw-bold">Yêu cầu Bảo trì</h5>
+                <p class="card-text text-muted small">
+                    Gửi yêu cầu sửa chữa nhanh chóng. Theo dõi tiến độ xử lý và đánh giá chất lượng dịch vụ.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card feature-card p-4 text-center">
+                <div class="d-flex justify-content-center">
+                    <div class="icon-box">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                </div>
+                <h5 class="card-title fw-bold">Thông báo Tức thì</h5>
+                <p class="card-text text-muted small">
+                    Nhận thông báo Real-time về tiền thuê, lịch bảo trì và các tin tức quan trọng từ ban quản lý.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card feature-card p-4 text-center">
+                <div class="d-flex justify-content-center">
+                    <div class="icon-box">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <h5 class="card-title fw-bold">Cộng đồng Cư dân</h5>
+                <p class="card-text text-muted small">
+                    Kết nối với cộng đồng qua hệ thống Chat nội bộ. Xây dựng môi trường sống văn minh, thân thiện.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="cta-section text-center shadow-sm">
+        <h2 class="fw-bold mb-3">Bạn đã sẵn sàng trải nghiệm?</h2>
+        <p class="text-muted mb-4">Tham gia cùng hàng trăm cư dân và chủ nhà đang sử dụng hệ thống của chúng tôi.</p>
+        
+        <div class="row justify-content-center mb-4">
+            <div class="col-4 col-md-3 border-end">
+                <h3 class="fw-bold text-primary">500+</h3>
+                <span class="small text-muted">Căn hộ</span>
+            </div>
+            <div class="col-4 col-md-3 border-end">
+                <h3 class="fw-bold text-primary">98%</h3>
+                <span class="small text-muted">Hài lòng</span>
+            </div>
+            <div class="col-4 col-md-3">
+                <h3 class="fw-bold text-primary">24/7</h3>
+                <span class="small text-muted">Hỗ trợ</span>
+            </div>
+        </div>
+
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <a asp-page="/Register" class="btn btn-primary btn-lg rounded-pill px-5 shadow">
+                Bắt đầu ngay <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        }
     </div>
 </div>

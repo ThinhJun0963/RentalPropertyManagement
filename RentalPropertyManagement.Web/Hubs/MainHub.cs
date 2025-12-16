@@ -1,17 +1,22 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
+using System;
 
 namespace RentalPropertyManagement.Web.Hubs
 {
-    // Lớp Hub chính
     public class MainHub : Hub
     {
-        // Phương thức nhận thông báo từ Client (nếu cần)
-        public async Task SendMessage(string user, string message)
+        // Gửi tin nhắn đến tất cả mọi người (Global Chat)
+        public async Task SendGlobalMessage(string message)
         {
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
-        }
+            // Lấy tên người dùng từ Cookie đăng nhập (nếu chưa đăng nhập thì là "Khách")
+            var user = Context.User?.Identity?.Name ?? "Khách";
 
-        // Phương thức ReceiveNotification được gọi từ Server (SignalRNotificationService)
+            // Lấy thời gian hiện tại
+            var timestamp = DateTime.Now.ToString("HH:mm");
+
+            // Gửi về Client: User, Message, Time
+            await Clients.All.SendAsync("ReceiveGlobalMessage", user, message, timestamp);
+        }
     }
 }

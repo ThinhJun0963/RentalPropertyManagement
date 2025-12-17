@@ -1,0 +1,26 @@
+@page
+@model RentalPropertyManagement.Web.Pages.Payments.CallbackModel
+@{
+    ViewData["Title"] = "Processing Payment";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="text-center">
+                <div class="spinner-border mb-3" role="status">
+                    <span class="visually-hidden">Processing payment...</span>
+                </div>
+                <h4>Processing your payment...</h4>
+                <p>Please wait while we confirm your payment with VNPay.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+</style>

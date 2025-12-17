@@ -105,5 +105,20 @@ namespace RentalPropertyManagement.DAL.Repositories
             query = ApplyIncludes(query, includes);
             return await query.ToListAsync();
         }
+
+        public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _dbSet.Where(predicate).AsNoTracking().ToListAsync();
+        }
+
+        public async Task<TEntity> GetByIdAsync(int id)
+        {
+            return await _dbSet.FindAsync(id);
+        }
+
+        public void Update(TEntity entity)
+        {
+            _dbSet.Update(entity);
+        }
     }
 }

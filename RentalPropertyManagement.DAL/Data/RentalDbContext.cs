@@ -15,6 +15,8 @@ namespace RentalPropertyManagement.DAL.Data
         public DbSet<Property> Properties { get; set; }
         public DbSet<Contract> Contracts { get; set; }
         public DbSet<MaintenanceRequest> MaintenanceRequests { get; set; }
+        public DbSet<PaymentInvoice> PaymentInvoices { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -46,6 +48,32 @@ namespace RentalPropertyManagement.DAL.Data
                 .HasOne(c => c.Tenant)
                 .WithMany(u => u.ContractsAsTenant)
                 .HasForeignKey(c => c.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 4. Cấu hình cho PaymentInvoice
+            modelBuilder.Entity<PaymentInvoice>()
+                .HasOne(pi => pi.Contract)
+                .WithMany()
+                .HasForeignKey(pi => pi.ContractId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PaymentInvoice>()
+                .HasOne(pi => pi.Tenant)
+                .WithMany(u => u.PaymentInvoices)
+                .HasForeignKey(pi => pi.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 5. Cấu hình cho Payment
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.PaymentInvoice)
+                .WithMany()
+                .HasForeignKey(p => p.PaymentInvoiceId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Tenant)
+                .WithMany(u => u.Payments)
+                .HasForeignKey(p => p.TenantId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

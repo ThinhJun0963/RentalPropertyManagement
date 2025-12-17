@@ -1,0 +1,75 @@
+@page
+@model RentalPropertyManagement.Web.Pages.Payments.FailureModel
+@{
+    ViewData["Title"] = "Payment Failed";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Payment Failed</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-times-circle" style="font-size: 3rem; color: #dc3545;"></i>
+                    </div>
+
+                    <h4 class="mb-3">Payment Processing Failed</h4>
+
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> @Model.ErrorMessage
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ResponseCode))
+                    {
+                        <div class="alert alert-warning">
+                            <strong>Response Code:</strong> @Model.ResponseCode
+                        </div>
+                    }
+
+                    <div class="alert alert-light">
+                        <p>Your payment could not be processed.</p>
+                        <p>Please check your payment information and try again.</p>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a asp-page="/Tenant/PayRent" class="btn btn-primary btn-lg">Back to Invoices</a>
+                        <a asp-page="/Tenant/Dashboard" class="btn btn-outline-primary btn-lg">Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <h6>Need Help?</h6>
+                <p>If you continue to experience issues with payment, please contact our support team.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .fa-times-circle {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    @@keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        25% {
+            transform: translateX(-10px);
+        }
+        75% {
+            transform: translateX(10px);
+        }
+    }
+</style>

@@ -9,8 +9,10 @@ namespace RentalPropertyManagement.DAL.Interfaces
     {
         // --- PHƯƠNG THỨC BẤT ĐỒNG BỘ (ASYNC) ---
         Task<TEntity> GetAsync(int id);
+        Task<TEntity> GetByIdAsync(int id);
         Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes);
         Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includes);
+        Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
 
         // Phương thức quan trọng cho Login/Register (Tìm User theo Email)
         Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate);
@@ -27,6 +29,7 @@ namespace RentalPropertyManagement.DAL.Interfaces
         void AddRange(IEnumerable<TEntity> entities);
         void Remove(TEntity entity);
         void RemoveRange(IEnumerable<TEntity> entities);
+        void Update(TEntity entity);
 
         // Lưu ý: Tôi đang giữ lại các phương thức Sync để tránh gây thêm lỗi nếu chúng được dùng ở nơi khác
     }

@@ -1,0 +1,105 @@
+@page
+@model RentalPropertyManagement.Web.Pages.Payments.ProcessPaymentModel
+@{
+    ViewData["Title"] = "Process Payment";
+}
+
+<div class="container mt-4">
+    <h1>Process Payment</h1>
+
+    @if (Model.Invoice == null)
+    {
+        <div class="alert alert-danger" role="alert">
+            Invoice not found.
+        </div>
+        <a asp-page="/Tenant/PayRent" class="btn btn-secondary">Back to Invoices</a>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <h5>Invoice Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Invoice ID:</strong> #@Model.Invoice.Id</p>
+                        <p><strong>Contract ID:</strong> @Model.Invoice.ContractId</p>
+                        <p><strong>Invoice Date:</strong> @Model.Invoice.InvoiceDate.ToString("dd/MM/yyyy")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Due Date:</strong> @Model.Invoice.DueDate.ToString("dd/MM/yyyy")</p>
+                        <p><strong>Status:</strong> 
+                            @switch (Model.Invoice.Status)
+                            {
+                                case 1:
+                                    <span class="badge bg-warning">Pending</span>
+                                    break;
+                                case 3:
+                                    <span class="badge bg-success">Paid</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">@Model.Invoice.StatusText</span>
+                                    break;
+                            }
+                        </p>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="text-center mb-4">
+                    <h3 class="text-danger">@Model.Invoice.Amount.ToString("N0") VND</h3>
+                    <p>@Model.Invoice.Description</p>
+                </div>
+
+                @if (Model.Invoice.Status == 1)
+                {
+                    <form method="post">
+                        <input type="hidden" asp-for="Invoice.Id" />
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">Pay with VNPay</button>
+                        </div>
+                    </form>
+                }
+                else if (Model.Invoice.Status == 3)
+                {
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> This invoice has already been paid.
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        This invoice cannot be paid at the moment.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a asp-page="/Tenant/PayRent" class="btn btn-secondary">Back to Invoices</a>
+        </div>
+    }
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .text-danger {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1.1rem;
+    }
+</style>

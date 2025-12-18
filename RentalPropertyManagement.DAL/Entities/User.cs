@@ -32,5 +32,7 @@ namespace RentalPropertyManagement.DAL.Entities
         public virtual ICollection<Contract> ContractsAsTenant { get; set; }
         public virtual ICollection<MaintenanceRequest> SubmittedRequests { get; set; }
         public virtual ICollection<MaintenanceRequest> AssignedRequests { get; set; }
+        public virtual ICollection<PaymentInvoice> PaymentInvoices { get; set; }
+        public virtual ICollection<Payment> Payments { get; set; }
     }
 }

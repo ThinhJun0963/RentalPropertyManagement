@@ -11,6 +11,8 @@ namespace RentalPropertyManagement.DAL.Interfaces
         IRepository<Property> Properties { get; }
         IRepository<Contract> Contracts { get; }
         IRepository<MaintenanceRequest> MaintenanceRequests { get; }
+        IRepository<PaymentInvoice> PaymentInvoices { get; }
+        IRepository<Payment> Payments { get; }
 
         // Cập nhật Save() thành CompleteAsync()
         Task<int> CompleteAsync();

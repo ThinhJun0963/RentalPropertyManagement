@@ -5,6 +5,7 @@ using RentalPropertyManagement.DAL.Enums;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Security.Claims;
 
 namespace RentalPropertyManagement.Web.Pages.Landlord
 {
@@ -14,14 +15,17 @@ namespace RentalPropertyManagement.Web.Pages.Landlord
         private readonly IContractService _contractService;
 
         public DashboardModel(IContractService contractService)
+        public void OnGet()
         {
+            // Ki?m tra user ?ã ??ng nh?p
+            if (User?.FindFirst(ClaimTypes.NameIdentifier) == null)
             _contractService = contractService;
         }
 
         public LandlordDashboardSummary Summary { get; set; } = new LandlordDashboardSummary();
 
         public async Task OnGetAsync()
-        {
+            {
             var allContracts = await _contractService.GetAllContractsAsync();
             Summary.TotalContracts = allContracts.Count();
             Summary.ActiveContracts = allContracts.Count(c => c.Status == ContractStatus.Active);
@@ -33,8 +37,9 @@ namespace RentalPropertyManagement.Web.Pages.Landlord
                 c.EndDate.HasValue &&
                 c.EndDate.Value.Date >= today &&
                 c.EndDate.Value.Date <= ninetyDaysFromNow);
+                RedirectToPage("/Login");
+            }
         }
-    }
 
     public class LandlordDashboardSummary
     {

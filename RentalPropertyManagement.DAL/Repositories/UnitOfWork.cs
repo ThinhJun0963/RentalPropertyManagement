@@ -14,6 +14,8 @@ namespace RentalPropertyManagement.DAL.Repositories
         public IRepository<Property> Properties { get; private set; }
         public IRepository<Contract> Contracts { get; private set; }
         public IRepository<MaintenanceRequest> MaintenanceRequests { get; private set; }
+        public IRepository<PaymentInvoice> PaymentInvoices { get; private set; }
+        public IRepository<Payment> Payments { get; private set; }
 
         public UnitOfWork(RentalDbContext context)
         {
@@ -24,6 +26,8 @@ namespace RentalPropertyManagement.DAL.Repositories
             Properties = new Repository<Property>(_context);
             Contracts = new Repository<Contract>(_context);
             MaintenanceRequests = new Repository<MaintenanceRequest>(_context);
+            PaymentInvoices = new Repository<PaymentInvoice>(_context);
+            Payments = new Repository<Payment>(_context);
         }
 
         public async Task<int> CompleteAsync()

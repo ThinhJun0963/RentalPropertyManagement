@@ -25,12 +25,10 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Trang chủ</a>
                         </li>
-
                         @if (User.Identity.IsAuthenticated)
                         {
                             @if (User.IsInRole("Landlord"))
                             {
-                                @* Thêm nút vào Dashboard ở đây *@
                                 <li class="nav-item">
                                     <a class="nav-link text-primary fw-bold" asp-page="/Landlord/Dashboard">📊 Bảng điều khiển</a>
                                 </li>
@@ -61,12 +59,11 @@
                             }
                         }
                     </ul>
-
                     <ul class="navbar-nav">
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <span class="nav-link text-dark">Xin chào, @User.Identity.Name!</span>
+                                <span class="nav-link text-dark">Xin chào, <span id="userEmail">@User.Identity.Name</span>!</span>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link btn btn-link text-dark" asp-page="/Logout">Đăng xuất</a>
@@ -86,43 +83,37 @@
             </div>
         </nav>
     </header>
-
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
-
     @if (User.Identity.IsAuthenticated)
     {
         <partial name="_ChatBox" />
     }
-
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - RentalPropertyManagement - <a asp-area="" asp-page="/Privacy">Quyền riêng tư</a>
         </div>
     </footer>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+    <script src="~/js/chat.js" asp-append-version="true"></script>
     <script>
         const notificationConnection = new signalR.HubConnectionBuilder()
             .withUrl("/mainHub")
             .withAutomaticReconnect()
             .build();
-
         notificationConnection.on("ReceiveNotification", (title, body, url) => {
             toastr.info(`${body}`, `${title}`, {
                 onclick: function () { window.location.href = url; },
                 timeOut: 10000
             });
         });
-
         notificationConnection.start().catch(err => console.error("Notification Error: ", err));
     </script>
     @await RenderSectionAsync("Scripts", required: false)

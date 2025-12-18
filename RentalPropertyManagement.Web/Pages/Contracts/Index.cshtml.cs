@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RentalPropertyManagement.Web.Pages.Contracts
 {
-    // Chỉ Landlord mới được xem danh sách đầy đủ
+    // Chỉ cho phép Chủ nhà truy cập vào danh sách quản lý hợp đồng tổng thể
     [Authorize(Roles = "Landlord")]
     public class IndexModel : PageModel
     {
@@ -19,26 +19,22 @@ namespace RentalPropertyManagement.Web.Pages.Contracts
             _contractService = contractService;
         }
 
+        // Danh sách hợp đồng để hiển thị lên bảng
         public IEnumerable<ContractDTO> Contracts { get; set; }
 
         public async Task OnGetAsync()
         {
-            // Lấy tất cả hợp đồng (bao gồm Pending, Active, Expired)
+            // Lấy toàn bộ hợp đồng kèm thông tin tên người thuê và địa chỉ tài sản
             Contracts = await _contractService.GetAllContractsAsync();
         }
+
+        // Xử lý yêu cầu xóa hợp đồng từ giao diện
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
-            try
-            {
-                await _contractService.DeleteContractAsync(id);
-                TempData["SuccessMessage"] = $"Hợp đồng ID {id} đã được xóa.";
-                return RedirectToPage("./Index");
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"Lỗi xóa: {ex.Message}";
-                return RedirectToPage("./Index");
-            }
+            await _contractService.DeleteContractAsync(id);
+
+            // Tải lại trang để cập nhật danh sách mới nhất
+            return RedirectToPage();
         }
     }
 }

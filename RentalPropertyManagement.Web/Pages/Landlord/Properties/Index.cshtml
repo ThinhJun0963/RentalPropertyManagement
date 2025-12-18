@@ -1,0 +1,77 @@
+﻿@page
+@model RentalPropertyManagement.Web.Pages.Landlord.Properties.IndexModel
+@{
+    ViewData["Title"] = "Danh sách Tài sản";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-building text-primary"></i> Quản lý Tài sản</h2>
+        <a asp-page="./Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Thêm Tài sản mới
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Địa chỉ</th>
+                        <th>Thành phố</th>
+                        <th>Diện tích</th>
+                        <th>Giá thuê</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Properties != null && Model.Properties.Any())
+                    {
+                        foreach (var item in Model.Properties)
+                        {
+                            <tr>
+                                <td>@item.Address</td>
+                                <td>@item.City</td>
+                                <td>@item.SquareFootage m²</td>
+                                <td>@item.MonthlyRent.ToString("N0") VNĐ</td>
+                                <td>
+                                    @if (item.IsOccupied)
+                                    {
+                                        <span class="badge bg-danger">Đã thuê</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Trống</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-edit"></i> Sửa
+                                        </a>
+                                        <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id"
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài sản này? Hành động này không thể hoàn tác.')"
+                                              class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                Chưa có tài sản nào được đăng ký.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

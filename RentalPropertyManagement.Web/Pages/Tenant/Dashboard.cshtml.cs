@@ -15,9 +15,10 @@ namespace RentalPropertyManagement.Web.Pages.Tenant
     {
         private readonly IContractService _contractService;
         private readonly IUnitOfWork _unitOfWork;
-        public DashboardModel(IContractService contractService)
+        public DashboardModel(IContractService contractService, IUnitOfWork unitOfWork)
         {
             _contractService = contractService;
+            _unitOfWork = unitOfWork; // Gán giá trị được inject vào biến private
         }
 
         public TenantDashboardSummary Summary { get; set; } = new TenantDashboardSummary();

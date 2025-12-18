@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using RentalPropertyManagement.BLL.DTOs;
 using RentalPropertyManagement.BLL.Interfaces;
+using RentalPropertyManagement.DAL.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,53 +16,72 @@ namespace RentalPropertyManagement.Web.Pages.Contracts
     public class CreateModel : PageModel
     {
         private readonly IContractService _contractService;
+        private readonly IPropertyService _propertyService;
         private readonly IUserService _userService;
-        private readonly IPropertyService _propertyService; // Dịch vụ giả định
 
-        public CreateModel(IContractService contractService, IUserService userService, IPropertyService propertyService)
+        public CreateModel(IContractService contractService, IPropertyService propertyService, IUserService userService)
         {
             _contractService = contractService;
-            _userService = userService;
             _propertyService = propertyService;
+            _userService = userService;
         }
 
         [BindProperty]
-        public ContractDTO Contract { get; set; }
+        public ContractDTO Contract { get; set; } = new ContractDTO { StartDate = DateTime.Now };
 
-        public SelectList Tenants { get; set; }
-        public SelectList Properties { get; set; }
+        public IEnumerable<SelectListItem> PropertyList { get; set; }
+        public IEnumerable<SelectListItem> TenantList { get; set; }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
-            // Lấy danh sách Tenants
-            var tenants = await _userService.GetTenantsForSelectionAsync();
-            Tenants = new SelectList(tenants, "Id", "FullName");
-
-            // Lấy danh sách Property có sẵn
-            var properties = await _propertyService.GetAvailablePropertiesForSelectionAsync();
-            Properties = new SelectList(properties, "Id", "Address");
+            await LoadData();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
+            // Kiểm tra ModelState
             if (!ModelState.IsValid)
             {
-                await OnGetAsync(); // Load lại dropdown nếu lỗi validation
+                // Nếu form không gửi được, nạp lại dữ liệu Dropdown
+                await LoadData();
                 return Page();
             }
 
             try
             {
-                await _contractService.CreateContractAsync(Contract);
-                TempData["SuccessMessage"] = "Tạo hợp đồng thành công! Hợp đồng đang ở trạng thái PENDING.";
+                // Mặc định trạng thái khi tạo mới là Pending
+                Contract.Status = ContractStatus.Pending;
+
+                await _contractService.AddContractAsync(Contract);
                 return RedirectToPage("./Index");
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, "Không thể tạo hợp đồng: " + ex.Message);
-                await OnGetAsync();
+                // Nếu có lỗi từ Database (ví dụ: lỗi khóa ngoại), hiển thị lỗi lên màn hình
+                ModelState.AddModelError(string.Empty, "Lỗi khi lưu vào CSDL: " + ex.Message);
+                await LoadData();
                 return Page();
             }
+        }
+
+        private async Task LoadData()
+        {
+            // Lấy danh sách tài sản trống
+            var availableProperties = await _propertyService.GetAvailablePropertiesForSelectionAsync();
+            PropertyList = availableProperties.Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = $"{p.Address} - {p.MonthlyRent:N0} VNĐ"
+            }).ToList();
+
+            // Lấy danh sách người thuê
+            var tenants = await _userService.GetTenantsForSelectionAsync();
+            TenantList = tenants.Select(t => new SelectListItem
+            {
+                Value = t.Id.ToString(),
+                Text = t.FullName
+            }).ToList();
         }
     }
 }

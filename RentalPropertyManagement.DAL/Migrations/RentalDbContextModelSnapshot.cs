@@ -122,7 +122,7 @@ namespace RentalPropertyManagement.DAL.Migrations
                             Priority = 3,
                             PropertyId = 1,
                             Status = 1,
-                            SubmittedDate = new DateTime(2025, 12, 18, 10, 26, 6, 274, DateTimeKind.Local).AddTicks(8573),
+                            SubmittedDate = new DateTime(2025, 12, 18, 11, 53, 39, 251, DateTimeKind.Local).AddTicks(2513),
                             TenantId = 2
                         });
                 });

@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering; // Cần có
+using Microsoft.AspNetCore.Mvc.Rendering;
 using RentalPropertyManagement.BLL.DTOs;
-using RentalPropertyManagement.BLL.Interfaces; // Cần có IUserService và IPropertyService
+using RentalPropertyManagement.BLL.Interfaces;
+using RentalPropertyManagement.DAL.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,38 +15,22 @@ namespace RentalPropertyManagement.Web.Pages.Contracts
     public class EditModel : PageModel
     {
         private readonly IContractService _contractService;
-        // ⚠️ THAY THẾ IUnitOfWork bằng các service BLL
-        private readonly IUserService _userService;
         private readonly IPropertyService _propertyService;
+        private readonly IUserService _userService;
 
-        // ⚠️ Cập nhật Constructor
-        public EditModel(IContractService contractService, IUserService userService, IPropertyService propertyService)
+        public EditModel(IContractService contractService, IPropertyService propertyService, IUserService userService)
         {
             _contractService = contractService;
-            _userService = userService;
             _propertyService = propertyService;
+            _userService = userService;
         }
 
         [BindProperty]
         public ContractDTO Contract { get; set; }
 
-        public SelectList Tenants { get; set; } // Thay đổi từ IEnumerable<SelectListItem> sang SelectList
-        public SelectList Properties { get; set; } // Thay đổi từ IEnumerable<SelectListItem> sang SelectList
-
-        // ⚠️ Cập nhật Phương thức hỗ trợ tải dữ liệu (Sử dụng BLL Services)
-        private async Task LoadSelectListsAsync()
-        {
-            // Tải danh sách Người thuê (Dùng IUserService)
-            var tenants = await _userService.GetTenantsForSelectionAsync();
-            Tenants = new SelectList(tenants, "Id", "FullName");
-
-            // Tải danh sách Tài sản (Dùng IPropertyService)
-            var properties = await _propertyService.GetAvailablePropertiesForSelectionAsync();
-            Properties = new SelectList(properties, "Id", "Address");
-
-            // Nếu hợp đồng đang chỉnh sửa có PropertyId và TenantId, đảm bảo chúng được chọn
-            // Logic này phức tạp hơn nếu Property đang active, nhưng để đơn giản, ta chỉ cần có chúng trong danh sách.
-        }
+        public IEnumerable<SelectListItem> PropertyList { get; set; }
+        public IEnumerable<SelectListItem> TenantList { get; set; }
+        public IEnumerable<SelectListItem> StatusList { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -56,64 +41,56 @@ namespace RentalPropertyManagement.Web.Pages.Contracts
                 return NotFound();
             }
 
-            await LoadSelectListsAsync();
+            await LoadData();
             return Page();
         }
 
-        // --- CẬP NHẬT (UPDATE) ---
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
-                await LoadSelectListsAsync();
+                await LoadData();
                 return Page();
             }
 
-            try
-            {
-                // Gọi BLL Service để Update
-                await _contractService.UpdateContractAsync(Contract);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi khi cập nhật hợp đồng: " + ex.Message);
-                await LoadSelectListsAsync();
-                return Page();
-            }
-
-            TempData["SuccessMessage"] = $"Hợp đồng ID {Contract.Id} đã được cập nhật thành công.";
+            await _contractService.UpdateContractAsync(Contract);
             return RedirectToPage("./Index");
         }
 
-        // --- XÓA (DELETE) ---
-        public async Task<IActionResult> OnPostDeleteAsync(int id)
+        private async Task LoadData()
         {
-            try
-            {
-                await _contractService.DeleteContractAsync(id);
-                TempData["SuccessMessage"] = $"Hợp đồng ID {id} đã được xóa thành công.";
-                return RedirectToPage("./Index");
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"Lỗi xóa hợp đồng ID {id}: {ex.Message}";
-                return RedirectToPage("./Edit", new { id = id });
-            }
-        }
-        public async Task<IActionResult> OnPostActivateAsync(int id)
-        {
-            try
-            {
-                await _contractService.ActivateContractAsync(id);
-                TempData["SuccessMessage"] = $"Hợp đồng ID {id} đã được kích hoạt thành công.";
-                return RedirectToPage("./Index");
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"Lỗi kích hoạt hợp đồng ID {id}: {ex.Message}";
-                return RedirectToPage("./Edit", new { id });
-            }
-        }
+            // Lấy danh sách tài sản: Gồm các tài sản trống + tài sản hiện tại của hợp đồng này
+            var allAvailable = await _propertyService.GetAvailablePropertiesForSelectionAsync();
+            var currentProperty = await _propertyService.GetPropertyByIdAsync(Contract.PropertyId);
 
+            var propertyOptions = allAvailable.ToList();
+            if (currentProperty != null && !propertyOptions.Any(p => p.Id == currentProperty.Id))
+            {
+                propertyOptions.Add(currentProperty);
+            }
+
+            PropertyList = propertyOptions.Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = $"{p.Address} ({p.City})"
+            });
+
+            // Lấy danh sách người thuê
+            var tenants = await _userService.GetTenantsForSelectionAsync();
+            TenantList = tenants.Select(t => new SelectListItem
+            {
+                Value = t.Id.ToString(),
+                Text = t.FullName
+            });
+
+            // Danh sách trạng thái hợp đồng từ Enum
+            StatusList = System.Enum.GetValues(typeof(ContractStatus))
+                .Cast<ContractStatus>()
+                .Select(s => new SelectListItem
+                {
+                    Value = ((int)s).ToString(),
+                    Text = s.ToString()
+                });
+        }
     }
 }

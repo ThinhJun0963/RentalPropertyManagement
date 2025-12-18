@@ -16,7 +16,8 @@ namespace RentalPropertyManagement.DAL.Interfaces
 
         // Phương thức quan trọng cho Login/Register (Tìm User theo Email)
         Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate);
-
+        // Thêm phương thức này vào interface
+        Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includes);
         Task<IEnumerable<TEntity>> GetAllAsync();
         Task AddAsync(TEntity entity);
 

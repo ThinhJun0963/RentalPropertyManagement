@@ -4,24 +4,66 @@
     ViewData["Title"] = "Bảng điều khiển Chủ nhà";
 }
 
-<div class="container-fluid">
+<div class="container-fluid px-4">
     <h1 class="mt-4">Chào mừng Chủ nhà!</h1>
-    <p>Đây là khu vực quản lý tài sản và hợp đồng của bạn.</p>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Bảng điều khiển quản lý</li>
+    </ol>
 
     <div class="row">
+        @* CẬP NHẬT: Thẻ Quản lý Tài sản *@
         <div class="col-xl-3 col-md-6">
-            <div class="card bg-primary text-white mb-4">
-                <div class="card-body">Quản lý Tài sản</div>
-                <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">Xem chi tiết</a>
+            <div class="card bg-primary text-white mb-4 shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="large fw-bold">Quản lý Tài sản</div>
+                            <div class="text-white-50 small">Thêm, sửa, xóa tài sản</div>
+                        </div>
+                        <i class="fas fa-building fa-2x"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between small">
+                    <a class="text-white stretched-link" asp-page="/Landlord/Properties/Index">Xem danh sách</a>
+                    <div class="text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
         </div>
+
+        @* Thẻ Hợp đồng *@
         <div class="col-xl-3 col-md-6">
-            <div class="card bg-success text-white mb-4">
-                <div class="card-body">Hợp đồng hiện tại</div>
-                <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="/Contracts/Index">Xem danh sách</a>
+            <div class="card bg-success text-white mb-4 shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="large fw-bold">Hợp đồng thuê</div>
+                            <div class="text-white-50 small">Theo dõi thời hạn và tiền nhà</div>
+                        </div>
+                        <i class="fas fa-file-contract fa-2x"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between small">
+                    <a class="text-white stretched-link" asp-page="/Contracts/Index">Quản lý Hợp đồng</a>
+                    <div class="text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        @* Thẻ Bảo trì *@
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-dark mb-4 shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="large fw-bold">Yêu cầu Bảo trì</div>
+                            <div class="text-dark-50 small">Phê duyệt & phân công sửa chữa</div>
+                        </div>
+                        <i class="fas fa-tools fa-2x"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between small">
+                    <a class="text-dark stretched-link" asp-page="/Maintenance/Inbox">Kiểm tra hòm thư</a>
+                    <div class="text-dark"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
         </div>

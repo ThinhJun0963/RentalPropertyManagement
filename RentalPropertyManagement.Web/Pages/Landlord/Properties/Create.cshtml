@@ -1,0 +1,54 @@
+﻿@page
+@model RentalPropertyManagement.Web.Pages.Contracts.CreateModel
+@{
+    ViewData["Title"] = "Lập Hợp đồng";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">Tạo Hợp đồng mới</h5>
+                </div>
+                <div class="card-body p-4">
+                    @* Thêm novalidate để trình duyệt không tự chặn nút bấm *@
+                    <form method="post" novalidate>
+                        @* Hiển thị bảng thông báo lỗi màu đỏ nếu có lỗi *@
+                        <div asp-validation-summary="All" class="alert alert-danger @(ModelState.IsValid ? "d-none" : "")"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tài sản (Đang trống)</label>
+                            <select asp-for="Contract.PropertyId" class="form-select" asp-items="Model.PropertyList" required>
+                                <option value="">-- Chọn tài sản --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Người thuê (Tenant)</label>
+                            <select asp-for="Contract.TenantId" class="form-select" asp-items="Model.TenantList" required>
+                                <option value="">-- Chọn người thuê --</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Ngày bắt đầu</label>
+                                <input asp-for="Contract.StartDate" type="date" class="form-control" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Giá thuê (VNĐ/tháng)</label>
+                                <input asp-for="Contract.RentAmount" type="number" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <a asp-page="./Index" class="btn btn-secondary">Hủy</a>
+                            <button type="submit" class="btn btn-success px-4">Xác nhận Tạo</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -12,7 +12,7 @@ using RentalPropertyManagement.DAL.Data;
 namespace RentalPropertyManagement.DAL.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    [Migration("20251218034959_AddPaymentTables")]
+    [Migration("20251218045339_AddPaymentTables")]
     partial class AddPaymentTables
     {
         /// <inheritdoc />
@@ -58,6 +58,18 @@ namespace RentalPropertyManagement.DAL.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Contracts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            EndDate = new DateTime(2026, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PropertyId = 1,
+                            RentAmount = 10000000m,
+                            StartDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TenantId = 2
+                        });
                 });
 
             modelBuilder.Entity("RentalPropertyManagement.DAL.Entities.MaintenanceRequest", b =>
@@ -103,6 +115,19 @@ namespace RentalPropertyManagement.DAL.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("MaintenanceRequests");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AttachmentUrl = "example.jpg",
+                            Description = "Fix leaking roof",
+                            Priority = 3,
+                            PropertyId = 1,
+                            Status = 1,
+                            SubmittedDate = new DateTime(2025, 12, 18, 11, 53, 39, 251, DateTimeKind.Local).AddTicks(2513),
+                            TenantId = 2
+                        });
                 });
 
             modelBuilder.Entity("RentalPropertyManagement.DAL.Entities.Payment", b =>
@@ -227,6 +252,28 @@ namespace RentalPropertyManagement.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Properties");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "123 Main St",
+                            City = "Hanoi",
+                            Description = "Apartment in city center",
+                            IsOccupied = false,
+                            MonthlyRent = 10000000m,
+                            SquareFootage = 100
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "456 Elm St",
+                            City = "Saigon",
+                            Description = "House with garden",
+                            IsOccupied = true,
+                            MonthlyRent = 15000000m,
+                            SquareFootage = 150
+                        });
                 });
 
             modelBuilder.Entity("RentalPropertyManagement.DAL.Entities.User", b =>
@@ -269,6 +316,38 @@ namespace RentalPropertyManagement.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "landlord@gmail.com",
+                            FirstName = "Landlord",
+                            LastName = "Admin",
+                            PasswordHash = "$2y$10$tlwzkAKGJOgk8yPycei6O.ZK4XloYY2mj.G91apzS7sJyn1x3vXn2",
+                            PhoneNumber = "0123456789",
+                            Role = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "tenant@gmail.com",
+                            FirstName = "Tenant",
+                            LastName = "User",
+                            PasswordHash = "$2y$10$tlwzkAKGJOgk8yPycei6O.ZK4XloYY2mj.G91apzS7sJyn1x3vXn2",
+                            PhoneNumber = "0987654321",
+                            Role = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "provider@gmail.com",
+                            FirstName = "Service",
+                            LastName = "Provider",
+                            PasswordHash = "$2y$10$tlwzkAKGJOgk8yPycei6O.ZK4XloYY2mj.G91apzS7sJyn1x3vXn2",
+                            PhoneNumber = "0112233445",
+                            Role = 3
+                        });
                 });
 
             modelBuilder.Entity("RentalPropertyManagement.DAL.Entities.Contract", b =>

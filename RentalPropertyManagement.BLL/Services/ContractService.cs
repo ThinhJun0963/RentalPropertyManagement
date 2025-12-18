@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using RentalPropertyManagement.BLL.DTOs;
+﻿using RentalPropertyManagement.BLL.DTOs;
 using RentalPropertyManagement.BLL.Interfaces;
 using RentalPropertyManagement.DAL.Entities;
-using RentalPropertyManagement.DAL.Enums;
 using RentalPropertyManagement.DAL.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,134 +11,106 @@ namespace RentalPropertyManagement.BLL.Services
     public class ContractService : IContractService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly INotificationService _notificationService;
-        public ContractService(IUnitOfWork unitOfWork, INotificationService notificationService)
+
+        public ContractService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _notificationService = notificationService;
         }
-
-        // --- Helper Mapping (Chuyển Entity -> DTO) ---
-        private ContractDTO MapToDto(Contract entity)
-        {
-            if (entity == null) return null;
-            return new ContractDTO
-            {
-                Id = entity.Id,
-                PropertyId = entity.PropertyId,
-                TenantId = entity.TenantId,
-                RentAmount = entity.RentAmount,
-                StartDate = entity.StartDate,
-                EndDate = entity.EndDate,
-                Status = entity.Status,
-                // TODO: Sau này cần JOIN/Include User và Property để lấy tên/địa chỉ
-                TenantName = entity.Tenant != null ? $"{entity.Tenant.FirstName} {entity.Tenant.LastName}" : "N/A",
-                PropertyAddress = entity.Property != null ? entity.Property.Address : "N/A"
-            };
-        }
-        // ----------------------------------------------
 
         public async Task<IEnumerable<ContractDTO>> GetAllContractsAsync()
         {
-            var entities = await _unitOfWork.Contracts
-                .GetAllAsync(c => c.Property, c => c.Tenant);
-
-            return entities.Select(MapToDto);
+            var contracts = await _unitOfWork.Contracts.GetAllAsync(c => c.Property, c => c.Tenant);
+            return contracts.Select(c => MapToDTO(c));
         }
+
+        public async Task<IEnumerable<ContractDTO>> GetContractsByTenantIdAsync(int tenantId)
+        {
+            var contracts = await _unitOfWork.Contracts.FindAsync(c => c.TenantId == tenantId, c => c.Property, c => c.Tenant);
+            return contracts.Select(c => MapToDTO(c));
+        }
+
+
         public async Task<ContractDTO> GetContractByIdAsync(int id)
         {
-            var contract = await _unitOfWork.Contracts.GetAsync(id);
-            return MapToDto(contract);
+
+            var contract = await _unitOfWork.Contracts.GetSingleAsync(
+                c => c.Id == id,
+                c => c.Property,
+                c => c.Tenant
+            );
+
+            return contract != null ? MapToDTO(contract) : null;
         }
 
-        public async Task<ContractDTO> CreateContractAsync(ContractDTO dto)
+        public async Task AddContractAsync(ContractDTO contractDto)
         {
-            // LOGIC TẠO: Luôn tạo hợp đồng với trạng thái Pending
             var contract = new Contract
             {
-                PropertyId = dto.PropertyId,
-                TenantId = dto.TenantId,
-                RentAmount = dto.RentAmount,
-                StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
-                Status = ContractStatus.Pending
+                PropertyId = contractDto.PropertyId,
+                TenantId = contractDto.TenantId,
+                StartDate = contractDto.StartDate,
+                EndDate = contractDto.EndDate,
+                RentAmount = contractDto.RentAmount, // Đã sửa từ Price thành RentAmount
+                Status = contractDto.Status
             };
 
             await _unitOfWork.Contracts.AddAsync(contract);
-            await _unitOfWork.CompleteAsync();
 
-            dto.Id = contract.Id;
-
-            // --- GỬI THÔNG BÁO SIGNALR: Hợp đồng mới cần kích hoạt ---
-            await _notificationService.SendContractNotificationAsync(
-                "Hợp đồng Mới Cần Kích hoạt",
-                $"Hợp đồng ID {contract.Id} đã được tạo (Pending).",
-                $"/Contracts/Edit/{contract.Id}");
-            return dto;
-        }
-        public async Task UpdateContractAsync(ContractDTO dto)
-        {
-            var existingContract = await _unitOfWork.Contracts.GetAsync(dto.Id);
-
-            if (existingContract != null)
+            if (contract.Status == DAL.Enums.ContractStatus.Active)
             {
-                // Cập nhật các thuộc tính
-                existingContract.PropertyId = dto.PropertyId;
-                existingContract.TenantId = dto.TenantId;
-                existingContract.RentAmount = dto.RentAmount;
-                existingContract.StartDate = dto.StartDate;
-                existingContract.EndDate = dto.EndDate;
-                existingContract.Status = dto.Status;
+                var property = await _unitOfWork.Properties.GetByIdAsync(contract.PropertyId);
+                if (property != null) property.IsOccupied = true;
+            }
 
-                // Lưu thay đổi. (Repository<T> Add/Remove không cần, chỉ cần cho Update)
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task UpdateContractAsync(ContractDTO contractDto)
+        {
+            var contract = await _unitOfWork.Contracts.GetByIdAsync(contractDto.Id);
+            if (contract != null)
+            {
+                contract.StartDate = contractDto.StartDate;
+                contract.EndDate = contractDto.EndDate;
+                contract.RentAmount = contractDto.RentAmount; // Đã sửa từ Price thành RentAmount
+                contract.Status = contractDto.Status;
+
+                var property = await _unitOfWork.Properties.GetByIdAsync(contract.PropertyId);
+                if (property != null)
+                {
+                    property.IsOccupied = (contract.Status == DAL.Enums.ContractStatus.Active);
+                }
+
+                _unitOfWork.Contracts.Update(contract);
                 await _unitOfWork.CompleteAsync();
             }
         }
 
         public async Task DeleteContractAsync(int id)
         {
-            var contract = await _unitOfWork.Contracts.GetAsync(id);
+            var contract = await _unitOfWork.Contracts.GetByIdAsync(id);
             if (contract != null)
             {
-                // Remove thường là đồng bộ trong EF Core (trừ khi dùng RemoveRangeAsync)
                 _unitOfWork.Contracts.Remove(contract);
                 await _unitOfWork.CompleteAsync();
             }
         }
 
-        // --- CHỨC NĂNG NGHIỆP VỤ: Kích hoạt Hợp đồng (Landlord) ---
-        public async Task ActivateContractAsync(int contractId)
+        private ContractDTO MapToDTO(Contract c)
         {
-            var contract = (await _unitOfWork.Contracts.FindAsync(c => c.Id == contractId, c => c.Property)).FirstOrDefault();
-            if (contract == null) throw new KeyNotFoundException($"Contract ID {contractId} not found.");
-            if (contract.Status != ContractStatus.Pending) throw new InvalidOperationException("Hợp đồng chỉ có thể được kích hoạt khi ở trạng thái 'Pending'.");
-
-            // 1. Cập nhật trạng thái hợp đồng
-            contract.Status = ContractStatus.Active;
-
-            // 2. Cập nhật Property.IsOccupied = true (hoàn tất TODO)
-            if (contract.Property != null)
+            return new ContractDTO
             {
-                contract.Property.IsOccupied = true;
-                // Không cần gọi Update vì EF sẽ track thay đổi
-            }
-
-            await _unitOfWork.CompleteAsync();
-
-            // 3. Gửi thông báo SignalR cho Tenant
-            await _notificationService.SendContractNotificationAsync(
-                "Hợp đồng Đã Kích hoạt",
-                $"Hợp đồng ID {contractId} của bạn đã được kích hoạt.",
-                $"/Tenant/MyContracts");
-        }
-
-        // --- CHỨC NĂNG NGHIỆP VỤ: Lấy Hợp đồng theo Tenant ID ---
-        public async Task<IEnumerable<ContractDTO>> GetContractsByTenantIdAsync(int tenantId)
-        {
-            var entities = await _unitOfWork.Contracts
-                .FindAsync(c => c.TenantId == tenantId, c => c.Property, c => c.Tenant);
-
-            return entities.Select(MapToDto);
+                Id = c.Id,
+                PropertyId = c.PropertyId,
+                PropertyAddress = c.Property?.Address ?? "N/A",
+                TenantId = c.TenantId,
+                // Đã sửa từ FullName thành kết hợp FirstName và LastName
+                TenantName = c.Tenant != null ? $"{c.Tenant.FirstName} {c.Tenant.LastName}" : "N/A",
+                StartDate = c.StartDate,
+                EndDate = c.EndDate,
+                RentAmount = c.RentAmount, // Đã sửa từ Price thành RentAmount
+                Status = c.Status
+            };
         }
     }
 }

@@ -30,6 +30,10 @@
                         {
                             @if (User.IsInRole("Landlord"))
                             {
+                                @* Thêm nút vào Dashboard ở đây *@
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary fw-bold" asp-page="/Landlord/Dashboard">📊 Bảng điều khiển</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-page="/Contracts/Index">Quản lý Hợp đồng</a>
                                 </li>
@@ -89,7 +93,6 @@
         </main>
     </div>
 
-    @* PHẦN CẬP NHẬT: Tích hợp Chat Box vào Layout chính *@
     @if (User.Identity.IsAuthenticated)
     {
         <partial name="_ChatBox" />
@@ -104,17 +107,10 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    @if (User.Identity.IsAuthenticated)
-    {
-        <script src="~/js/chat.js" asp-append-version="true"></script>
-    }
-
     <script>
-        // Đổi tên biến ở đây thành notificationConnection để tránh trùng với chat
         const notificationConnection = new signalR.HubConnectionBuilder()
             .withUrl("/mainHub")
             .withAutomaticReconnect()
@@ -124,13 +120,6 @@
             toastr.info(`${body}`, `${title}`, {
                 onclick: function () { window.location.href = url; },
                 timeOut: 10000
-            });
-        });
-
-        notificationConnection.on("ReceiveMaintenanceUpdate", (title, body, url) => {
-            toastr.warning(`${body}`, `${title}`, {
-                onclick: function () { window.location.href = url; },
-                timeOut: 0
             });
         });
 

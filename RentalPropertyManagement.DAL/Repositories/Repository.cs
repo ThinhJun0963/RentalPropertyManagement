@@ -26,7 +26,15 @@ namespace RentalPropertyManagement.DAL.Repositories
         {
             return await _dbSet.FindAsync(id);
         }
+        // RentalPropertyManagement.DAL/Repositories/Repository.cs
 
+        public async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includes)
+        {
+            IQueryable<TEntity> query = _dbSet;
+            // Sử dụng hàm ApplyIncludes có sẵn trong file của bạn
+            query = ApplyIncludes(query, includes);
+            return await query.FirstOrDefaultAsync(predicate);
+        }
         public async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate)
         {
             // Sử dụng FirstOrDefaultAsync để tìm một đối tượng theo điều kiện

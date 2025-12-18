@@ -1,7 +1,7 @@
 ﻿@page
-@model RentalPropertyManagement.Web.Pages.Contracts.CreateModel
+@model RentalPropertyManagement.Web.Pages.Landlord.Properties.CreateModel
 @{
-    ViewData["Title"] = "Lập Hợp đồng";
+    ViewData["Title"] = "Thêm Tài sản mới";
 }
 
 <div class="container mt-4">
@@ -9,42 +9,53 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white py-3">
-                    <h5 class="mb-0">Tạo Hợp đồng mới</h5>
+                    <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Đăng ký Tài sản mới (Land)</h5>
                 </div>
                 <div class="card-body p-4">
-                    @* Thêm novalidate để trình duyệt không tự chặn nút bấm *@
+                    @* Thêm novalidate nếu bạn muốn tự quản lý thông báo lỗi qua asp-validation-summary *@
                     <form method="post" novalidate>
-                        @* Hiển thị bảng thông báo lỗi màu đỏ nếu có lỗi *@
-                        <div asp-validation-summary="All" class="alert alert-danger @(ModelState.IsValid ? "d-none" : "")"></div>
+                        @* Hiển thị bảng thông báo lỗi nếu dữ liệu nhập vào không hợp lệ *@
+                        <div asp-validation-summary="All" class="alert alert-danger @(ViewData.ModelState.IsValid ? "d-none" : "")"></div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Tài sản (Đang trống)</label>
-                            <select asp-for="Contract.PropertyId" class="form-select" asp-items="Model.PropertyList" required>
-                                <option value="">-- Chọn tài sản --</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Người thuê (Tenant)</label>
-                            <select asp-for="Contract.TenantId" class="form-select" asp-items="Model.TenantList" required>
-                                <option value="">-- Chọn người thuê --</option>
-                            </select>
+                            <label asp-for="Property.Address" class="form-label fw-bold">Địa chỉ chi tiết</label>
+                            <input asp-for="Property.Address" class="form-control" placeholder="Số nhà, tên đường, phường/xã..." required />
+                            <span asp-validation-for="Property.Address" class="text-danger small"></span>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Ngày bắt đầu</label>
-                                <input asp-for="Contract.StartDate" type="date" class="form-control" />
+                                <label asp-for="Property.City" class="form-label fw-bold">Thành phố / Tỉnh</label>
+                                <input asp-for="Property.City" class="form-control" placeholder="Ví dụ: TP. Hồ Chí Minh" required />
+                                <span asp-validation-for="Property.City" class="text-danger small"></span>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Giá thuê (VNĐ/tháng)</label>
-                                <input asp-for="Contract.RentAmount" type="number" class="form-control" />
+                                <label asp-for="Property.SquareFootage" class="form-label fw-bold">Diện tích (m²)</label>
+                                <input asp-for="Property.SquareFootage" type="number" class="form-control" required min="1" />
+                                <span asp-validation-for="Property.SquareFootage" class="text-danger small"></span>
                             </div>
                         </div>
 
-                        <div class="text-end mt-4">
-                            <a asp-page="./Index" class="btn btn-secondary">Hủy</a>
-                            <button type="submit" class="btn btn-success px-4">Xác nhận Tạo</button>
+                        <div class="mb-3">
+                            <label asp-for="Property.MonthlyRent" class="form-label fw-bold">Giá thuê hàng tháng (VNĐ)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₫</span>
+                                <input asp-for="Property.MonthlyRent" type="number" step="1000" class="form-control" required min="1000" />
+                            </div>
+                            <span asp-validation-for="Property.MonthlyRent" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Property.Description" class="form-label fw-bold">Mô tả tài sản</label>
+                            <textarea asp-for="Property.Description" class="form-control" rows="4" placeholder="Thông tin về tiện ích, nội thất, hiện trạng..."></textarea>
+                            <span asp-validation-for="Property.Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end border-top pt-3">
+                            <a asp-page="./Index" class="btn btn-outline-secondary px-4 me-md-2">Quay lại</a>
+                            <button type="submit" class="btn btn-success px-5 shadow-sm">
+                                <i class="fas fa-save"></i> Lưu Tài sản
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -52,3 +63,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

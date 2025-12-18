@@ -1,0 +1,46 @@
+﻿@page
+@model RentalPropertyManagement.Web.Pages.Tenant.SubmitRequestModel
+@{
+    ViewData["Title"] = "Gửi Yêu cầu Bảo trì";
+}
+
+<div class="container mt-4">
+    <h2>🛠 Gửi Yêu cầu Bảo trì</h2>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-6">
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Chọn Tài sản</label>
+                    <select asp-for="RequestInput.PropertyId" asp-items="Model.MyProperties" class="form-select">
+                        <option value="">-- Chọn nhà thuê của bạn --</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mô tả sự cố</label>
+                    <textarea asp-for="RequestInput.Description" class="form-control" rows="4" placeholder="Mô tả chi tiết vấn đề cần sửa chữa..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mức độ ưu tiên</label>
+                    <select asp-for="RequestInput.Priority" class="form-select">
+                        <option value="1">Thấp</option>
+                        <option value="2">Trung bình</option>
+                        <option value="3">Cao</option>
+                        <option value="4">Khẩn cấp</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Link ảnh/video đính kèm (nếu có)</label>
+                    <input asp-for="RequestInput.AttachmentUrl" class="form-control" placeholder="Dán link ảnh tại đây" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Gửi Yêu cầu</button>
+                <a asp-page="/Tenant/Dashboard" class="btn btn-secondary">Quay lại</a>
+            </form>
+        </div>
+    </div>
+</div>

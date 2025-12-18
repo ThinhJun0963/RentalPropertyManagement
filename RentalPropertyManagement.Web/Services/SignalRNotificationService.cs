@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace RentalPropertyManagement.Web.Services
 {
-    // Lớp này thực thi Interface BLL bằng cách sử dụng IHubContext
     public class SignalRNotificationService : INotificationService
     {
         private readonly IHubContext<MainHub> _hubContext;
@@ -17,9 +16,13 @@ namespace RentalPropertyManagement.Web.Services
 
         public async Task SendContractNotificationAsync(string title, string body, string url)
         {
-            // Gửi tin nhắn đến tất cả clients đang kết nối
-            // "ReceiveNotification" là tên hàm Javascript Client sẽ lắng nghe
             await _hubContext.Clients.All.SendAsync("ReceiveNotification", title, body, url);
+        }
+
+        // THÊM MỚI: Triển khai gửi thông báo bảo trì qua SignalR
+        public async Task SendMaintenanceNotificationAsync(string title, string body, string url)
+        {
+            await _hubContext.Clients.All.SendAsync("ReceiveMaintenanceUpdate", title, body, url);
         }
     }
 }

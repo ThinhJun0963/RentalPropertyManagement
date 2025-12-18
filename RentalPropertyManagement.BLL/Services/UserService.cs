@@ -1,9 +1,12 @@
-﻿using BCrypt.Net; // Cần package BCrypt.Net-Next
-using RentalPropertyManagement.BLL.DTOs;
+﻿using RentalPropertyManagement.BLL.DTOs;
 using RentalPropertyManagement.BLL.Interfaces;
 using RentalPropertyManagement.DAL.Entities;
 using RentalPropertyManagement.DAL.Enums;
 using RentalPropertyManagement.DAL.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BCrypt.Net;
 
 namespace RentalPropertyManagement.BLL.Services
 {
@@ -16,77 +19,52 @@ namespace RentalPropertyManagement.BLL.Services
             _unitOfWork = unitOfWork;
         }
 
-        // --- Logic Đăng ký (Register) ---
-        public async Task<bool> RegisterAsync(RegisterDto request)
+        public async Task<bool> RegisterAsync(RegisterDto registerDto)
         {
-            // 1. Kiểm tra User đã tồn tại (Email là duy nhất)
-            var existingUser = await _unitOfWork.Users.GetSingleAsync(u => u.Email == request.Email);
-            if (existingUser != null)
-            {
-                return false; // User đã tồn tại
-            }
+            var existingUser = await _unitOfWork.Users.GetSingleAsync(u => u.Email == registerDto.Email);
+            if (existingUser != null) return false;
 
-            // 2. Hash mật khẩu trước khi lưu vào DB
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-            // 3. Tạo Entity mới
             var user = new User
             {
-                Email = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                PasswordHash = passwordHash,
-                Role = request.Role,
-                PhoneNumber = request.PhoneNumber
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
+                Email = registerDto.Email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
+                PhoneNumber = registerDto.PhoneNumber,
+                Role = registerDto.Role
             };
 
-            // 4. Lưu vào Database
             await _unitOfWork.Users.AddAsync(user);
-            await _unitOfWork.CompleteAsync();
-
-            return true;
+            return await _unitOfWork.CompleteAsync() > 0;
         }
 
-        // --- Logic Đăng nhập (Login) ---
-        public async Task<UserDto> LoginAsync(LoginDto request)
+        public async Task<User?> LoginAsync(LoginDto loginDto)
         {
-            var userEntity = await _unitOfWork.Users.GetSingleAsync(u => u.Email == request.Email);
-
-            if (userEntity == null)
-            {
+            var user = await _unitOfWork.Users.GetSingleAsync(u => u.Email == loginDto.Email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
                 return null;
-            }
-
-            // **KIỂM TRA MẬT KHẨU BẰNG HASHED PASSWORD**
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, userEntity.PasswordHash))
-            {
-                return null;
-            }
-            // -----------------------------
-
-            // Ánh xạ Entity sang DTO để trả về cho tầng Web
-            return new UserDto
-            {
-                Id = userEntity.Id,
-                FullName = $"{userEntity.FirstName} {userEntity.LastName}",
-                Email = userEntity.Email,
-                Role = userEntity.Role.ToString()
-            };
+            return user;
         }
-        public async Task<IEnumerable<UserDto>> GetTenantsForSelectionAsync()
-        {
-            // 1. Dùng Repository để tìm tất cả Users có Role là Tenant
-            var tenantEntities = await Task.Run(() =>
-                _unitOfWork.Users.Find(u => u.Role == UserRole.Tenant).ToList());
 
-            // 2. Ánh xạ sang UserDto
-            return tenantEntities.Select(u => new UserDto
+        // --- Triển khai GetUsersByRoleAsync ---
+        public async Task<IEnumerable<UserDto>> GetUsersByRoleAsync(UserRole role)
+        {
+            var users = await _unitOfWork.Users.FindAsync(u => u.Role == role);
+
+            return users.Select(u => new UserDto
             {
                 Id = u.Id,
                 FullName = $"{u.FirstName} {u.LastName}",
                 Email = u.Email,
                 Role = u.Role.ToString()
             });
+        }
+
+        // --- Triển khai GetTenantsForSelectionAsync ---
+        public async Task<IEnumerable<UserDto>> GetTenantsForSelectionAsync()
+        {
+            // Tận dụng hàm GetUsersByRoleAsync để lấy tất cả Tenant
+            return await GetUsersByRoleAsync(UserRole.Tenant);
         }
     }
 }

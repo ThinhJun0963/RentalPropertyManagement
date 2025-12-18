@@ -1,0 +1,57 @@
+﻿@page
+@model RentalPropertyManagement.Web.Pages.Maintenance.InboxModel
+@{
+    ViewData["Title"] = "Hòm thư Bảo trì";
+}
+
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📩 Danh sách Yêu cầu Bảo trì</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Ngày gửi</th>
+                    <th>Nhà / Người thuê</th>
+                    <th>Mô tả sự cố</th>
+                    <th>Mức độ</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Requests)
+                {
+                    <tr>
+                        <td>@item.SubmittedDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            <strong>@item.Property?.Address</strong><br />
+                            <small class="text-muted">@item.Tenant?.FullName</small>
+                        </td>
+                        <td>@item.Description</td>
+                        <td>
+                            <span class="badge @(item.Priority == DAL.Enums.RequestPriority.Urgent ? "bg-danger" : "bg-warning")">
+                                @item.Priority
+                            </span>
+                        </td>
+                        <td>@item.Status</td>
+                        <td>
+                            @if (item.Status == DAL.Enums.RequestStatus.New)
+                            {
+                                <a asp-page="./Assign" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">Phân công</a>
+                                <form method="post" asp-page-handler="UpdateStatus" asp-route-id="@item.Id" asp-route-status="@DAL.Enums.RequestStatus.Rejected" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Từ chối</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Đã xử lý (@item.AssignedProvider?.FullName)</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

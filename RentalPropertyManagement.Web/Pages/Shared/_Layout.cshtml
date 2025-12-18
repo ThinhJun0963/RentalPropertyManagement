@@ -1,216 +1,80 @@
-﻿<!DOCTYPE html>
-<html lang="vi">
+﻿@using RentalPropertyManagement.DAL.Enums
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - RentalPropertyManagement</title>
-
+    <title>@ViewData["Title"] - Rental Management</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/RentalPropertyManagement.Web.styles.css" asp-append-version="true" />
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-    <style>
-        /* === BẢNG MÀU GALLIANO & NAVY PROFESSIONAL === */
-        :root {
-            --color-primary-dark: #0f2c59; /* Xanh than đậm (Nền chính) */
-            --color-primary-light: #1e3d6b; /* Xanh than sáng hơn */
-            --color-galliano: #d8a903; /* Vàng đồng (Galliano) - Điểm nhấn */
-            --color-galliano-hover: #b58d00;
-            --color-text-dark: #333333;
-            --color-text-light: #f8f9fa;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--color-text-dark);
-            background-color: #f4f6f9; /* Nền xám nhạt dịu mắt */
-        }
-
-        /* 1. NAVBAR - Chuyển sang màu tối cho đỡ chói */
-        .navbar {
-            background-color: var(--color-primary-dark) !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 12px 0;
-        }
-
-        .navbar-brand {
-            color: #fff !important;
-            font-size: 1.6rem;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-            .navbar-brand i {
-                color: var(--color-galliano); /* Icon tòa nhà màu Vàng */
-            }
-
-        .nav-link {
-            color: rgba(255,255,255,0.85) !important;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-            .nav-link:hover, .nav-link.active {
-                color: var(--color-galliano) !important; /* Hover ra màu vàng */
-            }
-
-        /* 2. BUTTONS - Sử dụng màu Galliano làm điểm nhấn */
-        .btn-primary {
-            background-color: var(--color-galliano);
-            border-color: var(--color-galliano);
-            color: #fff;
-            font-weight: 600;
-            padding: 8px 20px;
-            box-shadow: 0 2px 6px rgba(216, 169, 3, 0.4);
-        }
-
-            .btn-primary:hover {
-                background-color: var(--color-galliano-hover);
-                border-color: var(--color-galliano-hover);
-                transform: translateY(-1px);
-            }
-
-        .btn-outline-light {
-            border-color: rgba(255,255,255,0.5);
-            color: #fff;
-        }
-
-            .btn-outline-light:hover {
-                background-color: var(--color-galliano);
-                border-color: var(--color-galliano);
-                color: #fff;
-            }
-
-        /* Override nút Login/Register trên menu */
-        .btn-login-nav {
-            border-radius: 4px;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-        }
-
-        /* 3. HERO SECTION (Ghi đè trang Index nếu có) */
-        .hero-section {
-            /* Gradient Xanh Than sang Đen - Rất sang, không chói */
-            background: linear-gradient(135deg, var(--color-primary-dark) 0%, #000000 100%) !important;
-            border-bottom: 4px solid var(--color-galliano) !important; /* Viền vàng dưới */
-        }
-
-        /* 4. CHAT BOX BUTTON - Đồng bộ màu */
-        .chat-btn-floating {
-            background-color: var(--color-galliano) !important;
-            color: #fff !important;
-        }
-
-        .card-header.bg-primary {
-            background-color: var(--color-primary-dark) !important;
-            border-bottom: 2px solid var(--color-galliano);
-        }
-
-        .msg-me {
-            background-color: var(--color-primary-light) !important;
-        }
-
-        /* 5. FOOTER */
-        footer.footer {
-            background-color: #e9ecef;
-            border-top: 1px solid #dee2e6;
-            color: #6c757d;
-        }
-
-        footer a {
-            color: var(--color-primary-dark);
-            font-weight: 600;
-        }
-
-            footer a:hover {
-                color: var(--color-galliano);
-                text-decoration: none;
-            }
-
-        /* Badge thông báo */
-        .badge-notification {
-            background-color: #dc3545;
-            border: 2px solid var(--color-primary-dark);
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
-<body class="d-flex flex-column min-vh-100">
-
+<body>
     <header>
-        <nav class="navbar navbar-expand-lg sticky-top">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand fw-bold" asp-area="" asp-page="/Index">
-                    <i class="fas fa-building me-2"></i>RentalPro
-                </a>
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" style="border-color: rgba(255,255,255,0.5);">
-                    <span class="fas fa-bars text-white"></span>
+                <a class="navbar-brand text-primary fw-bold" asp-area="" asp-page="/Index">🏠 Rental Management</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
                 </button>
-
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1 align-items-center ps-3">
+                    <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Index">
-                                <i class="fas fa-home me-1"></i> Trang chủ
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Privacy">
-                                <i class="fas fa-shield-alt me-1"></i> Chính sách
-                            </a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Trang chủ</a>
                         </li>
 
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item ms-lg-2">
-                                <a class="nav-link text-warning fw-bold" asp-area="" asp-page="/Tenant/Dashboard"
-                                   style="color: var(--color-galliano) !important;">
-                                    <i class="fas fa-tachometer-alt me-1"></i> Dashboard
-                                </a>
-                            </li>
+                            @if (User.IsInRole("Landlord"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Contracts/Index">Quản lý Hợp đồng</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Maintenance/Inbox">Hòm thư Bảo trì</a>
+                                </li>
+                            }
+                            else if (User.IsInRole("Tenant"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Tenant/MyContracts">Hợp đồng của tôi</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Tenant/PayRent">Thanh toán tiền nhà</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Tenant/SubmitRequest">🛠 Gửi yêu cầu sửa chữa</a>
+                                </li>
+                            }
+                            else if (User.IsInRole("ServiceProvider"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark text-danger fw-bold" asp-page="/Provider/MyTasks">Nhiệm vụ sửa chữa</a>
+                                </li>
+                            }
                         }
                     </ul>
 
-                    <ul class="navbar-nav align-items-center gap-2">
-                        <li class="nav-item dropdown me-3">
-                            <a class="nav-link position-relative pt-2" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-bell fa-lg text-white-50"></i>
-                                <span class="badge rounded-pill badge-notification position-absolute top-0 start-100 translate-middle" id="notificationCount" style="display:none;">0</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="notificationDropdown" id="notificationList">
-                                <li><h6 class="dropdown-header fw-bold text-uppercase text-muted" style="font-size: 0.75rem;">Thông báo mới</h6></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-muted small text-center py-3" href="#">Không có thông báo nào.</a></li>
-                            </ul>
-                        </li>
-
+                    <ul class="navbar-nav">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle fw-bold text-white" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle me-1 text-warning"></i> @User.Identity.Name
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
-                                    <li><a class="dropdown-item" asp-page="/Tenant/Dashboard"><i class="fas fa-columns me-2 text-muted"></i>Dashboard</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2 text-muted"></i>Cài đặt tài khoản</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" asp-page="/Logout"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
-                                </ul>
+                            <li class="nav-item">
+                                <span class="nav-link text-dark">Xin chào, @User.Identity.Name!</span>
                             </li>
-
-                            <span id="userEmail" style="display:none;">@User.Identity.Name</span>
+                            <li class="nav-item">
+                                <a class="nav-link btn btn-link text-dark" asp-page="/Logout">Đăng xuất</a>
+                            </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="btn btn-outline-light btn-login-nav border-0 me-2" asp-page="/Login">Đăng nhập</a>
+                                <a class="nav-link text-dark" asp-page="/Login">Đăng nhập</a>
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-primary btn-login-nav shadow-none text-white" asp-page="/Register" style="background-color: var(--color-galliano); border:none;">Đăng ký ngay</a>
+                                <a class="nav-link text-dark" asp-page="/Register">Đăng ký</a>
                             </li>
                         }
                     </ul>
@@ -219,24 +83,21 @@
         </nav>
     </header>
 
-    <div class="container flex-grow-1">
-        <main role="main" class="pb-3 pt-4">
+    <div class="container">
+        <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <partial name="_ChatBox" />
+    @* PHẦN CẬP NHẬT: Tích hợp Chat Box vào Layout chính *@
+    @if (User.Identity.IsAuthenticated)
+    {
+        <partial name="_ChatBox" />
+    }
 
-    <footer class="border-top footer mt-auto py-4 text-center text-muted">
+    <footer class="border-top footer text-muted">
         <div class="container">
-            <div class="mb-2">
-                &copy; 2025 - <span class="fw-bold" style="color: var(--color-primary-dark);">RentalPro</span> Management System
-            </div>
-            <div class="small">
-                <a asp-area="" asp-page="/Privacy" class="text-decoration-none mx-2">Chính sách bảo mật</a> |
-                <a href="#" class="text-decoration-none mx-2">Điều khoản sử dụng</a> |
-                <a href="#" class="text-decoration-none mx-2">Hỗ trợ</a>
-            </div>
+            &copy; 2025 - RentalPropertyManagement - <a asp-area="" asp-page="/Privacy">Quyền riêng tư</a>
         </div>
     </footer>
 
@@ -244,11 +105,37 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script src="~/js/notification-handler.js"></script>
-    <script src="~/js/chat.js" asp-append-version="true"></script>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script src="~/js/chat.js" asp-append-version="true"></script>
+    }
 
+    <script>
+        // Đổi tên biến ở đây thành notificationConnection để tránh trùng với chat
+        const notificationConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/mainHub")
+            .withAutomaticReconnect()
+            .build();
+
+        notificationConnection.on("ReceiveNotification", (title, body, url) => {
+            toastr.info(`${body}`, `${title}`, {
+                onclick: function () { window.location.href = url; },
+                timeOut: 10000
+            });
+        });
+
+        notificationConnection.on("ReceiveMaintenanceUpdate", (title, body, url) => {
+            toastr.warning(`${body}`, `${title}`, {
+                onclick: function () { window.location.href = url; },
+                timeOut: 0
+            });
+        });
+
+        notificationConnection.start().catch(err => console.error("Notification Error: ", err));
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

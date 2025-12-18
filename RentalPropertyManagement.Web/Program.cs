@@ -15,9 +15,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<RentalDbContext>(options =>
-{
-    options.UseSqlServer(connectionString);
-});
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure())); // Thêm dòng này để xử lý lỗi kết nối tạm thời
 
 // 2. Cấu hình Authentication & Authorization
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -36,7 +35,9 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
-
+// Thêm vào dưới các dịch vụ khác trong Program.cs
+builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
+builder.Services.AddScoped<IPropertyService, PropertyService>(); // Đăng ký luôn PropertyService vì nó đang thiếu
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IContractService, ContractService>();

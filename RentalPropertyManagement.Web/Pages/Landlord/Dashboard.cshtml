@@ -1,0 +1,29 @@
+﻿@page
+@model RentalPropertyManagement.Web.Pages.Landlord.DashboardModel
+@{
+    ViewData["Title"] = "Bảng điều khiển Chủ nhà";
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">Chào mừng Chủ nhà!</h1>
+    <p>Đây là khu vực quản lý tài sản và hợp đồng của bạn.</p>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">Quản lý Tài sản</div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">Hợp đồng hiện tại</div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="/Contracts/Index">Xem danh sách</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

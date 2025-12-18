@@ -8,19 +8,15 @@
     <div class="col-md-7">
         <div class="card shadow-lg">
             <div class="card-header bg-success text-white text-center">
-                <h3 class="mb-0">Đăng ký Tài khoản Người thuê mới</h3>
+                <h3 class="mb-0">Tạo tài khoản mới</h3>
             </div>
             <div class="card-body">
                 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
                 {
-                    <div class="alert alert-danger" role="alert">
-                        @Model.ErrorMessage
-                    </div>
+                    <div class="alert alert-danger">@Model.ErrorMessage</div>
                 }
 
                 <form method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label asp-for="RegisterRequest.FirstName" class="form-label">Họ</label>
@@ -41,7 +37,15 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label asp-for="RegisterRequest.PhoneNumber" class="form-label">Số điện thoại (Tùy chọn)</label>
+                        <label class="form-label">Bạn là ai?</label>
+                        <select asp-for="RegisterRequest.Role" asp-items="Model.RoleOptions" class="form-select">
+                            <option value="">-- Chọn vai trò --</option>
+                        </select>
+                        <span asp-validation-for="RegisterRequest.Role" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="RegisterRequest.PhoneNumber" class="form-label">Số điện thoại</label>
                         <input asp-for="RegisterRequest.PhoneNumber" class="form-control" />
                     </div>
 
@@ -52,27 +56,17 @@
                             <span asp-validation-for="RegisterRequest.Password" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="RegisterRequest.ConfirmPassword" class="form-label">Xác nhận Mật khẩu</label>
+                            <label asp-for="RegisterRequest.ConfirmPassword" class="form-label">Xác nhận</label>
                             <input asp-for="RegisterRequest.ConfirmPassword" type="password" class="form-control" />
                             <span asp-validation-for="RegisterRequest.ConfirmPassword" class="text-danger"></span>
                         </div>
                     </div>
 
-                    <input type="hidden" asp-for="RegisterRequest.Role" />
-
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-success btn-lg mt-3">Đăng ký</button>
-                    </div>
-
-                    <div class="text-center mt-3">
-                        Đã có tài khoản? <a asp-page="/Login">Đăng nhập ngay</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

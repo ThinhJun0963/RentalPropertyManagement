@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using RentalPropertyManagement.BLL.DTOs;
 using RentalPropertyManagement.BLL.Interfaces;
 using RentalPropertyManagement.DAL.Enums;
@@ -10,50 +11,56 @@ namespace RentalPropertyManagement.Web.Pages
     {
         private readonly IUserService _userService;
 
-        [BindProperty]
-        public RegisterDto RegisterRequest { get; set; }
-
-        public string ErrorMessage { get; set; }
-
         public RegisterModel(IUserService userService)
         {
             _userService = userService;
         }
 
+        [BindProperty]
+        public RegisterDto RegisterRequest { get; set; } = new();
+
+        public string? ErrorMessage { get; set; }
+
+        // Danh sách để hiển thị lên Dropdown
+        public List<SelectListItem> RoleOptions { get; set; } = new();
+
         public void OnGet()
         {
-            // Khởi tạo Role mặc định là Tenant
-            RegisterRequest = new RegisterDto { Role = UserRole.Tenant };
+            LoadRoles();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Bỏ qua Validation cho Role vì nó được set ngầm và cố định cho trang này
-            ModelState.Remove("RegisterRequest.Role");
-
             if (!ModelState.IsValid)
             {
+                LoadRoles();
                 ErrorMessage = "Vui lòng kiểm tra lại thông tin đăng ký.";
                 return Page();
             }
-
-            // Luôn đảm bảo Role là Tenant khi đăng ký từ trang công cộng này
-            RegisterRequest.Role = UserRole.Tenant;
 
             var result = await _userService.RegisterAsync(RegisterRequest);
 
             if (result)
             {
-                // Đăng ký thành công, lưu thông báo vào TempData và chuyển hướng về Login
-                TempData["SuccessMessage"] = "Đăng ký thành công! Vui lòng sử dụng Email và Mật khẩu vừa tạo để đăng nhập.";
+                TempData["SuccessMessage"] = "Đăng ký thành công! Bạn có thể đăng nhập ngay.";
                 return RedirectToPage("/Login");
             }
             else
             {
-                // Lỗi thường gặp: Email đã tồn tại (logic được xử lý trong UserService)
-                ErrorMessage = "Email đã tồn tại trong hệ thống. Vui lòng sử dụng email khác.";
+                LoadRoles();
+                ErrorMessage = "Email đã tồn tại hoặc có lỗi xảy ra.";
                 return Page();
             }
+        }
+
+        private void LoadRoles()
+        {
+            RoleOptions = new List<SelectListItem>
+            {
+                new SelectListItem { Value = ((int)UserRole.Tenant).ToString(), Text = "Người thuê (Tenant)" },
+                new SelectListItem { Value = ((int)UserRole.Landlord).ToString(), Text = "Chủ nhà (Landlord)" },
+                new SelectListItem { Value = ((int)UserRole.ServiceProvider).ToString(), Text = "Thợ sửa chữa (Provider)" }
+            };
         }
     }
 }

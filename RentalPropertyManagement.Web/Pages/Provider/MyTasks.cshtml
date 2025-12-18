@@ -1,0 +1,67 @@
+﻿@page
+@model RentalPropertyManagement.Web.Pages.Provider.MyTasksModel
+@{
+    ViewData["Title"] = "Công việc của tôi";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">🛠 Nhiệm vụ Bảo trì được giao</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Tasks.Any())
+    {
+        <div class="alert alert-info">Bạn hiện chưa có nhiệm vụ bảo trì nào được phân công.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var task in Model.Tasks)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm border-@GetStatusClass(task.Status)">
+                        <div class="card-body">
+                            <h5 class="card-title">Nhà tại: @task.Property?.Address</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Người thuê: @task.Tenant?.FullName</h6>
+                            <p class="card-text"><strong>Mô tả:</strong> @task.Description</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-secondary">Trạng thái: @task.Status</span>
+
+                                <div class="btn-group">
+                                    @if (task.Status == DAL.Enums.RequestStatus.Approved)
+                                    {
+                                        <form method="post" asp-page-handler="UpdateStatus" asp-route-id="@task.Id" asp-route-status="@DAL.Enums.RequestStatus.InProgress">
+                                            <button type="submit" class="btn btn-sm btn-primary">Bắt đầu xử lý</button>
+                                        </form>
+                                    }
+                                    @if (task.Status == DAL.Enums.RequestStatus.InProgress)
+                                    {
+                                        <form method="post" asp-page-handler="UpdateStatus" asp-route-id="@task.Id" asp-route-status="@DAL.Enums.RequestStatus.Completed">
+                                            <button type="submit" class="btn btn-sm btn-success">Hoàn thành</button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@functions {
+    string GetStatusClass(DAL.Enums.RequestStatus status) => status switch
+    {
+        DAL.Enums.RequestStatus.Approved => "info",
+        DAL.Enums.RequestStatus.InProgress => "warning",
+        DAL.Enums.RequestStatus.Completed => "success",
+        _ => "secondary"
+    };
+}

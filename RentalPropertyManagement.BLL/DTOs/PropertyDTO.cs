@@ -11,6 +11,9 @@ namespace RentalPropertyManagement.BLL.DTOs
         public int Id { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
-        public bool IsOccupied { get; set; } // Dùng để lọc các Property chưa có hợp đồng
+        public bool IsOccupied { get; set; }
+        public int SquareFootage { get; set; }
+        public decimal MonthlyRent { get; set; }
+        public string Description { get; set; }
     }
 }

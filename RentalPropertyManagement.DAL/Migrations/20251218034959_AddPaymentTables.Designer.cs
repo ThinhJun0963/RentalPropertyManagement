@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RentalPropertyManagement.DAL.Data;
 
@@ -11,9 +12,11 @@ using RentalPropertyManagement.DAL.Data;
 namespace RentalPropertyManagement.DAL.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    partial class RentalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251218034959_AddPaymentTables")]
+    partial class AddPaymentTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

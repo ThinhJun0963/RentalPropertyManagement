@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RentalPropertyManagement.DAL.Data;
 
@@ -11,9 +12,11 @@ using RentalPropertyManagement.DAL.Data;
 namespace RentalPropertyManagement.DAL.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    partial class RentalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251218032606_Demo01")]
+    partial class Demo01
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,94 +128,6 @@ namespace RentalPropertyManagement.DAL.Migrations
                             SubmittedDate = new DateTime(2025, 12, 18, 10, 26, 6, 274, DateTimeKind.Local).AddTicks(8573),
                             TenantId = 2
                         });
-                });
-
-            modelBuilder.Entity("RentalPropertyManagement.DAL.Entities.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PaymentInvoiceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PaymentMethod")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ResponseCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ResponseMessage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TransactionId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PaymentInvoiceId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("RentalPropertyManagement.DAL.Entities.PaymentInvoice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<int>("ContractId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("InvoiceDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("PaidDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TransactionReference")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("PaymentInvoices");
                 });
 
             modelBuilder.Entity("RentalPropertyManagement.DAL.Entities.Property", b =>
@@ -392,44 +307,6 @@ namespace RentalPropertyManagement.DAL.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("RentalPropertyManagement.DAL.Entities.Payment", b =>
-                {
-                    b.HasOne("RentalPropertyManagement.DAL.Entities.PaymentInvoice", "PaymentInvoice")
-                        .WithMany()
-                        .HasForeignKey("PaymentInvoiceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("RentalPropertyManagement.DAL.Entities.User", "Tenant")
-                        .WithMany("Payments")
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("PaymentInvoice");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("RentalPropertyManagement.DAL.Entities.PaymentInvoice", b =>
-                {
-                    b.HasOne("RentalPropertyManagement.DAL.Entities.Contract", "Contract")
-                        .WithMany()
-                        .HasForeignKey("ContractId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("RentalPropertyManagement.DAL.Entities.User", "Tenant")
-                        .WithMany("PaymentInvoices")
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Contract");
-
-                    b.Navigation("Tenant");
-                });
-
             modelBuilder.Entity("RentalPropertyManagement.DAL.Entities.Property", b =>
                 {
                     b.Navigation("Contracts");
@@ -442,10 +319,6 @@ namespace RentalPropertyManagement.DAL.Migrations
                     b.Navigation("AssignedRequests");
 
                     b.Navigation("ContractsAsTenant");
-
-                    b.Navigation("PaymentInvoices");
-
-                    b.Navigation("Payments");
 
                     b.Navigation("SubmittedRequests");
                 });

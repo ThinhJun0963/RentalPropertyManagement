@@ -50,6 +50,94 @@ namespace RentalPropertyManagement.DAL.Data
                 .HasForeignKey(c => c.TenantId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Seed Users
+            // Seed Users (1 cho mỗi role, với password hash cho "123456")
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    Id = 1,
+                    FirstName = "Landlord",
+                    LastName = "Admin",
+                    Email = "landlord@gmail.com",
+                    PasswordHash = "$2y$10$tlwzkAKGJOgk8yPycei6O.ZK4XloYY2mj.G91apzS7sJyn1x3vXn2",
+                    Role = Enums.UserRole.Landlord,
+                    PhoneNumber = "0123456789"
+                },
+                new User
+                {
+                    Id = 2,
+                    FirstName = "Tenant",
+                    LastName = "User",
+                    Email = "tenant@gmail.com",
+                    PasswordHash = "$2y$10$tlwzkAKGJOgk8yPycei6O.ZK4XloYY2mj.G91apzS7sJyn1x3vXn2",
+                    Role = Enums.UserRole.Tenant,
+                    PhoneNumber = "0987654321"
+                },
+                new User
+                {
+                    Id = 3,
+                    FirstName = "Service",
+                    LastName = "Provider",
+                    Email = "provider@gmail.com",
+                    PasswordHash = "$2y$10$tlwzkAKGJOgk8yPycei6O.ZK4XloYY2mj.G91apzS7sJyn1x3vXn2",
+                    Role = Enums.UserRole.ServiceProvider,
+                    PhoneNumber = "0112233445"
+                }
+            );
+
+            // Seed Properties (2 mẫu, 1 occupied, 1 available)
+            modelBuilder.Entity<Property>().HasData(
+                new Property
+                {
+                    Id = 1,
+                    Address = "123 Main St",
+                    City = "Hanoi",
+                    SquareFootage = 100,
+                    MonthlyRent = 10000000,
+                    Description = "Apartment in city center",
+                    IsOccupied = false
+                },
+                new Property
+                {
+                    Id = 2,
+                    Address = "456 Elm St",
+                    City = "Saigon",
+                    SquareFootage = 150,
+                    MonthlyRent = 15000000,
+                    Description = "House with garden",
+                    IsOccupied = true
+                }
+            );
+
+            // Seed Contracts (1 mẫu Pending giữa Landlord và Tenant, liên kết Property 1)
+            modelBuilder.Entity<Contract>().HasData(
+                new Contract
+                {
+                    Id = 1,
+                    PropertyId = 1,
+                    TenantId = 2, // Tenant ID 2
+                    StartDate = new DateTime(2025, 12, 1),
+                    EndDate = new DateTime(2026, 12, 1),
+                    RentAmount = 10000000,
+                    Status = Enums.ContractStatus.Pending
+                }
+            );
+
+            // Seed MaintenanceRequests (1 mẫu cho Tenant, liên kết Property 1)
+            modelBuilder.Entity<MaintenanceRequest>().HasData(
+                new MaintenanceRequest
+                {
+                    Id = 1,
+                    TenantId = 2,
+                    PropertyId = 1,
+                    Description = "Fix leaking roof",
+                    Priority = Enums.RequestPriority.High,
+                    Status = Enums.RequestStatus.New,
+                    SubmittedDate = DateTime.Now,
+                    AttachmentUrl = "example.jpg"
+                }
+            );
+
             // 4. Cấu hình cho PaymentInvoice
             modelBuilder.Entity<PaymentInvoice>()
                 .HasOne(pi => pi.Contract)

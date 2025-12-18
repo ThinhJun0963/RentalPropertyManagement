@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using RentalPropertyManagement.BLL.Interfaces;
 using RentalPropertyManagement.BLL.Services;
@@ -35,16 +36,14 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
-// Thêm vào dưới các dịch vụ khác trong Program.cs
 builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
-builder.Services.AddScoped<IPropertyService, PropertyService>(); // Đăng ký luôn PropertyService vì nó đang thiếu
+builder.Services.AddScoped<IPropertyService, PropertyService>();
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IContractService, ContractService>();
 builder.Services.AddScoped<IPaymentInvoiceService, PaymentInvoiceService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IPropertyService, PropertyService>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IRecurringPaymentService, RecurringPaymentService>();
 
 builder.Services.AddRazorPages(options =>
 {
@@ -54,6 +53,13 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToPage("/Register");
     options.Conventions.AllowAnonymousToPage("/Index");
 });
+
+// 4. Cấu hình Hangfire cho Background Jobs
+builder.Services.AddHangfire(config =>
+{
+    config.UseSqlServerStorage(connectionString);
+});
+builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
@@ -69,11 +75,27 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// 5. Cấu hình Hangfire Dashboard
+app.UseHangfireDashboard("/hangfire", new Hangfire.DashboardOptions
+{
+    Authorization = new[] { new Hangfire.Dashboard.LocalRequestsOnlyAuthorizationFilter() }
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+// 6. Đăng ký Recurring Job để tạo hóa đơn hàng tháng
+var recurringJobManager = app.Services.GetRequiredService<Hangfire.IRecurringJobManager>();
+recurringJobManager.AddOrUpdate<IRecurringPaymentService>(
+    "create-monthly-invoices",
+    service => service.CreateMonthlyInvoicesAsync(),
+    "0 1 1 * *" // Chạy vào lúc 01:00 ngày 1 mỗi tháng
+);
 
 app.MapHub<MainHub>("/mainHub");
 
 app.MapRazorPages();
+
+app.Run();
 
 app.Run();

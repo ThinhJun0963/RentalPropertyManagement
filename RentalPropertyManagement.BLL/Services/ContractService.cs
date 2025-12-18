@@ -2,6 +2,7 @@
 using RentalPropertyManagement.BLL.Interfaces;
 using RentalPropertyManagement.DAL.Entities;
 using RentalPropertyManagement.DAL.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,10 +12,12 @@ namespace RentalPropertyManagement.BLL.Services
     public class ContractService : IContractService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPaymentInvoiceService _paymentInvoiceService;
 
-        public ContractService(IUnitOfWork unitOfWork)
+        public ContractService(IUnitOfWork unitOfWork, IPaymentInvoiceService paymentInvoiceService)
         {
             _unitOfWork = unitOfWork;
+            _paymentInvoiceService = paymentInvoiceService;
         }
 
         public async Task<IEnumerable<ContractDTO>> GetAllContractsAsync()
@@ -50,7 +53,7 @@ namespace RentalPropertyManagement.BLL.Services
                 TenantId = contractDto.TenantId,
                 StartDate = contractDto.StartDate,
                 EndDate = contractDto.EndDate,
-                RentAmount = contractDto.RentAmount, // Đã sửa từ Price thành RentAmount
+                RentAmount = contractDto.RentAmount,
                 Status = contractDto.Status
             };
 
@@ -63,6 +66,50 @@ namespace RentalPropertyManagement.BLL.Services
             }
 
             await _unitOfWork.CompleteAsync();
+
+            // --- TỰ ĐỘNG TẠO PAYMENT INVOICES KHI TẠO HỢP ĐỒNG ---
+            await CreatePaymentInvoicesForContractAsync(contract);
+        }
+
+        /// <summary>
+        /// Tạo payment invoices cho hợp đồng từng tháng từ ngày bắt đầu đến ngày kết thúc
+        /// </summary>
+        private async Task CreatePaymentInvoicesForContractAsync(Contract contract)
+        {
+            try
+            {
+                var invoiceStartDate = contract.StartDate;
+                var invoiceEndDate = contract.EndDate ?? contract.StartDate.AddMonths(12); // Mặc định 12 tháng
+
+                for (var currentMonth = invoiceStartDate; currentMonth <= invoiceEndDate; currentMonth = currentMonth.AddMonths(1))
+                {
+                    var nextMonth = currentMonth.AddMonths(1);
+                    var dueDate = nextMonth.AddDays(-1); // Hết hạn cuối cùng của tháng
+
+                    var invoiceDto = new CreatePaymentInvoiceDTO
+                    {
+                        ContractId = contract.Id,
+                        TenantId = contract.TenantId,
+                        Amount = contract.RentAmount,
+                        DueDate = dueDate,
+                        Description = $"Tiền thuê tháng {currentMonth:MM/yyyy} - Hợp đồng #{contract.Id}"
+                    };
+
+                    try
+                    {
+                        await _paymentInvoiceService.CreateInvoiceAsync(invoiceDto);
+                        System.Diagnostics.Debug.WriteLine($"✅ Tạo hóa đơn tháng {currentMonth:MM/yyyy} cho hợp đồng {contract.Id}");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"❌ Lỗi tạo hóa đơn: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Lỗi trong CreatePaymentInvoicesForContractAsync: {ex.Message}");
+            }
         }
 
         public async Task UpdateContractAsync(ContractDTO contractDto)

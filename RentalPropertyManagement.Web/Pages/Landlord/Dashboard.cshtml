@@ -1,0 +1,69 @@
+﻿@page
+@using System.Security.Claims
+@model RentalPropertyManagement.Web.Pages.Landlord.DashboardModel
+@{
+    ViewData["Title"] = "Landlord Dashboard";
+}
+<h1 class="h2 mb-4 text-primary">🏠 Dashboard Landlord</h1>
+<p class="lead text-muted">Chào mừng trở lại, @User.FindFirstValue(ClaimTypes.Name) - Tổng quan về các hợp đồng và tài sản của bạn.</p>
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Hợp đồng Hoạt động</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Summary.ActiveContracts / @Model.Summary.TotalContracts</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-contract fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Thu Nhập Hàng Tháng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Summary.TotalMonthlyRent.ToString("N0") VNĐ</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Hợp đồng Sắp Hết Hạn</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Summary.ExpiringSoonContracts</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Các Hành Động Chính</h6>
+            </div>
+            <div class="card-body">
+                <a asp-page="/Contracts/Index" class="btn btn-outline-primary btn-block mb-3">
+                    <i class="fas fa-list-alt me-2"></i> Quản lý Hợp đồng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RentalPropertyManagement.BLL.DTOs;
 using RentalPropertyManagement.BLL.Interfaces;
+using RentalPropertyManagement.DAL.Interfaces;
+using System.Linq; // Cần dùng Linq để đếm
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Linq; // Cần dùng Linq để đếm
 
 namespace RentalPropertyManagement.Web.Pages.Tenant
 {
@@ -13,10 +14,7 @@ namespace RentalPropertyManagement.Web.Pages.Tenant
     public class DashboardModel : PageModel
     {
         private readonly IContractService _contractService;
-
-        // Thường bạn sẽ có IInvoiceService và IRequestService ở đây
-        // private readonly IInvoiceService _invoiceService;
-
+        private readonly IUnitOfWork _unitOfWork;
         public DashboardModel(IContractService contractService)
         {
             _contractService = contractService;
@@ -37,14 +35,10 @@ namespace RentalPropertyManagement.Web.Pages.Tenant
                     // Tính toán các chỉ số
                     Summary.TotalContracts = contracts.Count();
                     Summary.ActiveContracts = contracts.Count(c => c.Status == DAL.Enums.ContractStatus.Active);
-
-                    // Giả định: 
-                    // Summary.PendingInvoices = await _invoiceService.GetPendingInvoiceCountAsync(tenantId);
-                    // Summary.OpenMaintenanceRequests = await _requestService.GetOpenRequestCountAsync(tenantId);
-
-                    // Để đơn giản, tôi gán giá trị giả định cho các phần chưa có service
-                    Summary.PendingInvoices = 2;
-                    Summary.OpenMaintenanceRequests = 1;
+                    var pendingInvoices = await _unitOfWork.Contracts.FindAsync(c => c.TenantId == tenantId && c.Status == DAL.Enums.ContractStatus.Active); // Giả định invoices từ contracts
+                    Summary.PendingInvoices = pendingInvoices.Count(); // Thay bằng real nếu có Invoice entity
+                    var openRequests = await _unitOfWork.MaintenanceRequests.FindAsync(mr => mr.TenantId == tenantId && mr.Status == DAL.Enums.RequestStatus.New);
+                    Summary.OpenMaintenanceRequests = openRequests.Count();
                 }
             }
         }

@@ -111,21 +111,27 @@ namespace RentalPropertyManagement.BLL.Services
         // --- CHỨC NĂNG NGHIỆP VỤ: Kích hoạt Hợp đồng (Landlord) ---
         public async Task ActivateContractAsync(int contractId)
         {
-            var contract = await _unitOfWork.Contracts.GetAsync(contractId);
-
+            var contract = (await _unitOfWork.Contracts.FindAsync(c => c.Id == contractId, c => c.Property)).FirstOrDefault();
             if (contract == null) throw new KeyNotFoundException($"Contract ID {contractId} not found.");
             if (contract.Status != ContractStatus.Pending) throw new InvalidOperationException("Hợp đồng chỉ có thể được kích hoạt khi ở trạng thái 'Pending'.");
 
-            // 1. Cập nhật trạng thái
+            // 1. Cập nhật trạng thái hợp đồng
             contract.Status = ContractStatus.Active;
-            // TODO: (Nâng cao) Cập nhật Property.IsOccupied = true
+
+            // 2. Cập nhật Property.IsOccupied = true (hoàn tất TODO)
+            if (contract.Property != null)
+            {
+                contract.Property.IsOccupied = true;
+                // Không cần gọi Update vì EF sẽ track thay đổi
+            }
+
             await _unitOfWork.CompleteAsync();
 
-            // 2. Gửi thông báo SignalR cho Tenant
+            // 3. Gửi thông báo SignalR cho Tenant
             await _notificationService.SendContractNotificationAsync(
-                 "Hợp đồng Đã Kích hoạt",
-                 $"Hợp đồng ID {contractId} của bạn đã được kích hoạt.",
-                 $"/Tenant/MyContracts");
+                "Hợp đồng Đã Kích hoạt",
+                $"Hợp đồng ID {contractId} của bạn đã được kích hoạt.",
+                $"/Tenant/MyContracts");
         }
 
         // --- CHỨC NĂNG NGHIỆP VỤ: Lấy Hợp đồng theo Tenant ID ---

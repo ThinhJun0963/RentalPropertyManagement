@@ -163,15 +163,24 @@
                                 <i class="fas fa-shield-alt me-1"></i> Chính sách
                             </a>
                         </li>
-
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item ms-lg-2">
-                                <a class="nav-link text-warning fw-bold" asp-area="" asp-page="/Tenant/Dashboard"
-                                   style="color: var(--color-galliano) !important;">
-                                    <i class="fas fa-tachometer-alt me-1"></i> Dashboard
-                                </a>
-                            </li>
+                            @if (User.IsInRole("Landlord"))
+                            {
+                                <li class="nav-item ms-lg-2">
+                                    <a class="nav-link text-warning fw-bold" asp-page="/Landlord/Dashboard" style="color: var(--color-galliano) !important;">
+                                        <i class="fas fa-tachometer-alt me-1"></i> Dashboard Landlord
+                                    </a>
+                                </li>
+                            }
+                            else if (User.IsInRole("Tenant"))
+                            {
+                                <li class="nav-item ms-lg-2">
+                                    <a class="nav-link text-warning fw-bold" asp-page="/Tenant/Dashboard" style="color: var(--color-galliano) !important;">
+                                        <i class="fas fa-tachometer-alt me-1"></i> Dashboard Tenant
+                                    </a>
+                                </li>
+                            }
                         }
                     </ul>
 

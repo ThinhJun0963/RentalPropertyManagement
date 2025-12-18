@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RentalPropertyManagement.BLL.DTOs;
 using RentalPropertyManagement.BLL.Interfaces;
@@ -24,6 +25,20 @@ namespace RentalPropertyManagement.Web.Pages.Contracts
         {
             // Lấy tất cả hợp đồng (bao gồm Pending, Active, Expired)
             Contracts = await _contractService.GetAllContractsAsync();
+        }
+        public async Task<IActionResult> OnPostDeleteAsync(int id)
+        {
+            try
+            {
+                await _contractService.DeleteContractAsync(id);
+                TempData["SuccessMessage"] = $"Hợp đồng ID {id} đã được xóa.";
+                return RedirectToPage("./Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Lỗi xóa: {ex.Message}";
+                return RedirectToPage("./Index");
+            }
         }
     }
 }

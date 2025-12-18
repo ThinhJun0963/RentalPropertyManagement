@@ -59,7 +59,12 @@
                     <button type="submit" class="btn btn-success btn-lg me-2">Lưu Thay đổi</button>
                     <a asp-page="./Index" class="btn btn-secondary btn-lg">Quay lại</a>
                 </div>
-
+                @if (Model.Contract.Status == RentalPropertyManagement.DAL.Enums.ContractStatus.Pending)
+                {
+                    <form method="post" asp-page-handler="Activate" asp-route-id="@Model.Contract.Id" class="d-inline">
+                        <button type="submit" class="btn btn-warning btn-lg me-2">Kích hoạt Hợp đồng</button>
+                    </form>
+                }
                 <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#deleteModal">Xóa Hợp đồng</button>
             </div>
         </form>

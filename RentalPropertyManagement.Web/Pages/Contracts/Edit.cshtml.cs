@@ -100,5 +100,20 @@ namespace RentalPropertyManagement.Web.Pages.Contracts
                 return RedirectToPage("./Edit", new { id = id });
             }
         }
+        public async Task<IActionResult> OnPostActivateAsync(int id)
+        {
+            try
+            {
+                await _contractService.ActivateContractAsync(id);
+                TempData["SuccessMessage"] = $"Hợp đồng ID {id} đã được kích hoạt thành công.";
+                return RedirectToPage("./Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Lỗi kích hoạt hợp đồng ID {id}: {ex.Message}";
+                return RedirectToPage("./Edit", new { id });
+            }
+        }
+
     }
 }
